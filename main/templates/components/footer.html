@@ -1,0 +1,384 @@
+<!-- templates/components/footer.html -->
+{% load static %}
+<footer class="modern-footer">
+    <div class="footer-container">
+        <!-- Brand Section -->
+        <div class="footer-brand">
+            <div class="footer-logo">
+                <span class="brand-name">OffPlan<span class="brand-highlight">UAE.ai</span></span>
+            </div>
+            <p class="footer-tagline">
+                Your trusted AI-powered platform for discovering premium off-plan properties across the UAE.
+            </p>
+            
+            <!-- Social Icons -->
+            <div class="social-links">
+                <a href="#" class="social-icon" aria-label="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="social-icon" aria-label="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="social-icon" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="social-icon" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="footer-column">
+            <h3 class="footer-heading">Quick Links</h3>
+            <ul class="footer-links">
+                <li><a href="#" class="footer-link">Home</a></li>
+                <li><a href="#" class="footer-link">About Us</a></li>
+                <li><a href="#" class="footer-link">Properties</a></li>
+                <li><a href="#" class="footer-link">Blog</a></li>
+                <li><a href="#" class="footer-link">Contact</a></li>
+            </ul>
+        </div>
+        
+        <!-- Properties -->
+        <div class="footer-column">
+            <h3 class="footer-heading">Properties</h3>
+            <ul class="footer-links">
+                <li><a href="#" class="footer-link">Villas</a></li>
+                <li><a href="#" class="footer-link">Apartments</a></li>
+                <li><a href="#" class="footer-link">Townhouses</a></li>
+                <li><a href="#" class="footer-link">Off-Plan Projects</a></li>
+            </ul>
+        </div>
+        
+        <!-- Contact Info -->
+        <div class="footer-column">
+            <h3 class="footer-heading">Contact Info</h3>
+            <ul class="footer-contact">
+                <li class="contact-item">
+                    <i class="fas fa-map-marker-alt contact-icon"></i>
+                    <span>Dubai, United Arab Emirates</span>
+                </li>
+                <li class="contact-item">
+                    <i class="fas fa-phone contact-icon"></i>
+                    <span>+971 XXX XXXX</span>
+                </li>
+                <li class="contact-item">
+                    <i class="fas fa-envelope contact-icon"></i>
+                    <span>info@offplanuae.ai</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+        <div class="footer-bottom-container">
+            <p class="copyright">© 2025 OffPlanUAE.ai. All rights reserved.</p>
+            <div class="footer-legal">
+                <a href="#" class="legal-link">Privacy Policy</a>
+                <a href="#" class="legal-link">Terms of Service</a>
+                <a href="#" class="legal-link">Cookie Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+/* Modern Footer Styles */
+.modern-footer {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 4rem 0 0;
+    margin-top: 5rem;
+}
+
+.footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem 3rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 3rem;
+}
+
+/* Brand Section */
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.footer-logo {
+    margin-bottom: 0.5rem;
+}
+
+.brand-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: -0.5px;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+/* Gold Light Animation Effect - Same as header */
+.brand-name::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(245, 158, 11, 0.1) 25%,
+        rgba(245, 158, 11, 0.4) 50%,
+        rgba(245, 158, 11, 0.1) 75%,
+        transparent 100%
+    );
+    animation: goldLightSweep 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes goldLightSweep {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: -100%; }
+}
+
+.brand-highlight {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.footer-tagline {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 350px;
+}
+
+/* Social Links */
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-icon {
+    width: 45px;
+    height: 45px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.social-icon:hover {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+}
+
+.social-icon i {
+    font-size: 1.1rem;
+}
+
+/* Footer Columns */
+.footer-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin-bottom: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.footer-links,
+.footer-contact {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Footer Links with Active State */
+.footer-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    padding: 0.4rem 0;
+}
+
+.footer-link::before {
+    content: '→';
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    color: #f59e0b;
+    font-weight: bold;
+}
+
+.footer-link:hover,
+.footer-link.active {
+    color: #f59e0b;
+    padding-left: 1.5rem;
+}
+
+.footer-link:hover::before,
+.footer-link.active::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Contact Items */
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.contact-icon {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+    border-top: 1px solid #e2e8f0;
+    background: white;
+}
+
+.footer-bottom-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.copyright {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.footer-legal {
+    display: flex;
+    gap: 2rem;
+}
+
+.legal-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.legal-link:hover {
+    color: #f59e0b;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .footer-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+    }
+    
+    .footer-brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 640px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 0 1rem 2rem;
+    }
+    
+    .footer-brand {
+        text-align: center;
+        align-items: center;
+    }
+    
+    .footer-tagline {
+        text-align: center;
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
+    
+    .footer-bottom-container {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1.5rem 1rem;
+    }
+    
+    .footer-legal {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Active link highlighting for footer
+    const currentPath = window.location.pathname;
+    const footerLinks = document.querySelectorAll('.footer-link');
+    
+    footerLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        
+        // Remove existing active classes
+        link.classList.remove('active');
+        
+        // Check if current path matches
+        if (href && currentPath.includes(href.split('/').pop())) {
+            link.classList.add('active');
+        }
+        
+        // Handle home page
+        if (currentPath === '/' && (href.includes('home') || href === '/')) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>

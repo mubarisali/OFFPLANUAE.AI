@@ -1,0 +1,570 @@
+<!-- templates/components/header.html - CENTERED DESIGN -->
+{% load static %}
+<header class="modern-header">
+    <div class="header-container">
+        <!-- Left Navigation -->
+        <nav class="nav-left">
+            <ul class="nav-menu">
+                <li><a href="{% url 'main:home' %}" class="nav-link">Home</a></li>
+                <li><a href="{% url 'main:about' %}" class="nav-link">About</a></li>
+            </ul>
+        </nav>
+        
+        <!-- Center Logo Section -->
+        <div class="logo-section">
+            {% comment %} <a href="{% url 'home' %}" class="logo-link"> {% endcomment %}
+                <div class="logo-icon">
+                    <i class="fas fa-plane-departure"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="brand-name">OffPlan<span class="brand-highlight">UAE.ai</span></span>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Right Navigation -->
+        <nav class="nav-right">
+            <ul class="nav-menu">
+                <li><a href="{% url 'main:blog' %}" class="nav-link">Blog</a></li>
+                <li><a href="{% url 'main:contact' %}" class="nav-link">Contact</a></li>
+            </ul>
+        </nav>
+        
+        <!-- Language Selector -->
+        <div class="header-actions">
+            <div class="language-selector">
+                <button class="lang-btn" id="langToggle">
+                    <i class="fas fa-globe"></i>
+                    <span>EN</span>
+                </button>
+                <div class="lang-dropdown" id="langDropdown">
+                    <a href="#" class="lang-option active" data-lang="en">
+                        <span class="flag">🇬🇧</span>
+                        <span>English</span>
+                    </a>
+                    <a href="#" class="lang-option" data-lang="ar">
+                        <span class="flag">🇦🇪</span>
+                        <span>العربية</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Toggle -->
+        <div class="mobile-toggle" id="mobileToggle">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul class="mobile-nav-menu">
+            <li><a href="{% url 'main:home' %}" class="nav-link">Home</a></li>
+            <li><a href="{% url 'main:about' %}" class="nav-link">About</a></li>
+            <li><a href="{% url 'main:blog' %}" class="nav-link">Blog</a></li>
+            <li><a href="{% url 'main:contact' %}" class="nav-link">Contact</a></li>
+        </ul>
+    </div>
+</header>
+
+<style>
+/* Modern Header Styles */
+.modern-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.modern-header.scrolled {
+    padding: 0.5rem 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12);
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* Left & Right Navigation */
+.nav-left,
+.nav-right {
+    display: flex;
+}
+
+.nav-left {
+    justify-content: flex-end;
+}
+
+.nav-right {
+    justify-content: flex-start;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.nav-link {
+    color: #475569;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    position: relative;
+    padding: 0.5rem 0;
+    transition: color 0.3s ease;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #f59e0b;
+}
+
+.nav-link:hover::before,
+.nav-link.active::before {
+    width: 100%;
+}
+
+/* Center Logo Section */
+.logo-section {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0 3rem; /* More gap left and right */
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Increased gap between icon and text */
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.logo-link:hover {
+    transform: translateY(-2px);
+}
+
+.logo-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3);
+    transition: all 0.3s ease;
+}
+
+.logo-icon i {
+    color: #f59e0b;
+    font-size: 1.3rem;
+    animation: planeFloat 3s ease-in-out infinite;
+}
+
+.logo-link:hover .logo-icon {
+    box-shadow: 0 6px 25px rgba(30, 58, 95, 0.4);
+    transform: rotate(-5deg);
+}
+
+@keyframes planeFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(-5deg); }
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: -0.5px;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+/* Gold Light Animation Effect */
+.brand-name::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(245, 158, 11, 0.1) 25%,
+        rgba(245, 158, 11, 0.4) 50%,
+        rgba(245, 158, 11, 0.1) 75%,
+        transparent 100%
+    );
+    animation: goldLightSweep 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes goldLightSweep {
+    0% {
+        left: -100%;
+    }
+    50% {
+        left: 100%;
+    }
+    100% {
+        left: -100%;
+    }
+}
+
+.brand-highlight {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.brand-highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { 
+        opacity: 0; 
+        transform: translateX(-100%); 
+    }
+    50% { 
+        opacity: 1; 
+        transform: translateX(100%); 
+    }
+}
+
+/* Language Selector */
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.language-selector {
+    position: relative;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px solid transparent;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: #1e3a5f;
+}
+
+.lang-btn:hover {
+    background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+    border-color: #f59e0b;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    transform: translateY(-2px);
+}
+
+.lang-btn i:first-child {
+    color: #f59e0b;
+    font-size: 1.1rem;
+}
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.language-selector:hover .lang-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    margin: 0.25rem;
+}
+
+.lang-option:hover {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #1e3a5f;
+}
+
+.lang-option.active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.flag {
+    font-size: 1.2rem;
+}
+
+/* Mobile Toggle */
+.mobile-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 0.5rem;
+    grid-column: 4;
+}
+
+.mobile-toggle .bar {
+    width: 25px;
+    height: 3px;
+    background: linear-gradient(90deg, #1e3a5f, #f59e0b);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.mobile-toggle:hover .bar {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.mobile-toggle.active .bar:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.mobile-toggle.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-toggle.active .bar:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mobile-nav-menu li {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.mobile-nav-menu .nav-link {
+    display: block;
+    padding: 1rem 0;
+    width: 100%;
+}
+
+/* Gold Animation for Active Link */
+.nav-link.active {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.nav-link.active::before {
+    width: 100%;
+    animation: goldPulse 2s ease-in-out infinite;
+}
+
+@keyframes goldPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+    .header-container {
+        grid-template-columns: 1fr auto auto;
+        gap: 1rem;
+    }
+
+    .nav-left,
+    .nav-right {
+        display: none;
+    }
+
+    .logo-section {
+        grid-column: 2;
+    }
+
+    .header-actions {
+        grid-column: 3;
+    }
+
+    .mobile-toggle {
+        display: flex;
+        grid-column: 4;
+    }
+}
+
+@media (max-width: 640px) {
+    .header-container {
+        padding: 1rem;
+        grid-template-columns: auto 1fr auto;
+    }
+
+    .logo-section {
+        grid-column: 2;
+        justify-content: center;
+    }
+
+    .brand-name {
+        font-size: 1.2rem;
+    }
+
+    .logo-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .logo-icon i {
+        font-size: 1.1rem;
+    }
+
+    .header-actions {
+        grid-column: 3;
+    }
+
+    .mobile-toggle {
+        position: absolute;
+        right: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+    }
+    
+    // Close mobile menu when clicking on a link
+    const mobileLinks = document.querySelectorAll('.mobile-nav-menu .nav-link');
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+            mobileToggle.classList.remove('active');
+        });
+    });
+    
+    // Language selector
+    const langOptions = document.querySelectorAll('.lang-option');
+    const langToggle = document.getElementById('langToggle');
+    
+    langOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const lang = this.dataset.lang;
+            
+            // Update button text
+            langToggle.querySelector('span').textContent = lang.toUpperCase();
+            
+            // Update active state
+            langOptions.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            
+            console.log('Language changed to:', lang);
+        });
+    });
+    
+    // Header scroll effect
+    const header = document.querySelector('.modern-header');
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+    
+    // Active link highlighting
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || (currentPath === '/' && href.includes('home'))) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>

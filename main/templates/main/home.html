@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffPlanUAE.ai - Hero Section</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #e5e7eb;
+        }
+
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            overflow: hidden;
+             margin-top: 6rem;
+        }
+
+        /* Background Dubai Skyline Silhouette */
+        .hero-background {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><path d="M0 300 L50 300 L50 200 L100 200 L100 300 L150 300 L150 150 L200 150 L200 300 L250 300 L250 180 L300 180 L300 300 L350 300 L350 220 L400 220 L400 300 L450 300 L450 160 L500 160 L500 300 L550 300 L550 190 L600 190 L600 300 L650 300 L650 170 L700 170 L700 300 L750 300 L750 140 L800 140 L800 300 L850 300 L850 200 L900 200 L900 300 L950 300 L950 180 L1000 180 L1000 300 L1050 300 L1050 220 L1100 220 L1100 300 L1200 300 L1200 400 L0 400 Z" fill="rgba(229, 231, 235, 0.5)"/></svg>') no-repeat center bottom;
+            background-size: cover;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .hero-container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Main Heading */
+        .hero-heading {
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-heading h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .heading-line-1 {
+            color: #1e3a5f;
+        }
+
+        .heading-line-2 {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .heading-line-3 {
+            color: #64748b;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+        }
+
+        /* Description */
+        .hero-description {
+            max-width: 900px;
+            margin: 0 auto 1rem;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-description p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #64748b;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .smart-text {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        /* Statistics Card */
+        .stats-card {
+            max-width: 1100px;
+            margin: 3rem auto 0;
+            position: relative;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .stats-card-bg {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 3rem 2rem;
+            border: 1px solid rgba(245, 158, 11, 0.1);
+        }
+
+        .stats-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .stats-header h2 {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .stats-title {
+            color: #1e3a5f;
+        }
+
+        .stats-highlight {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-subtitle {
+            font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-number {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .stat-number.gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-number.blue {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: clamp(0.875rem, 1.2vw, 1rem);
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Floating Action Buttons */
+        .floating-buttons {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+            animation: fadeInUp 1s ease-out 0.6s backwards;
+        }
+
+        .float-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: #475569;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(71, 85, 105, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .float-btn:hover {
+            background: #334155;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(71, 85, 105, 0.4);
+        }
+
+        .float-btn i {
+            font-size: 1.25rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 2rem 1rem;
+            }
+
+            .stats-card-bg {
+                padding: 2rem 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+
+            .floating-buttons {
+                flex-direction: column;
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            .float-btn {
+                padding: 0.875rem 1.25rem;
+            }
+
+            .float-btn span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero-section">
+        <div class="hero-background"></div>
+        
+        <div class="hero-container">
+            <!-- Main Heading -->
+            <div class="hero-heading">
+                <h1>
+                    <div class="heading-line-1">Discover Luxury</div>
+                    <div class="heading-line-2">Off-Plan Properties</div>
+                    <div class="heading-line-3">in the UAE</div>
+                </h1>
+            </div>
+
+            <!-- Description -->
+            <div class="hero-description">
+                <p>
+                    Leverage cutting-edge artificial intelligence to find premium investment opportunities in Dubai, Abu Dhabi, and beyond.
+                </p>
+                <p class="smart-text">Smart investments start here.</p>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="stats-card">
+                <div class="stats-card-bg">
+                    <!-- Stats Header -->
+                    <div class="stats-header">
+                        <h2>
+                            <span class="stats-title">Dubai's </span>
+                            <span class="stats-highlight">Premier Real Estate Partner</span>
+                        </h2>
+                        <p class="stats-subtitle">
+                            At OffPlanUAE.ai, we combine decades of market expertise with innovative technology to deliver exceptional property solutions.
+                        </p>
+                    </div>
+
+                    <!-- Statistics Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number gold">
+                                <span class="counter" data-target="500">0</span>+
+                            </div>
+                            <div class="stat-label">Properties Sold</div>
+                        </div>
+
+                        <div class="stat-item">
+                            <div class="stat-number blue">
+                                <span class="counter" data-target="15">0</span>+
+                            </div>
+                            <div class="stat-label">Years Experience</div>
+                        </div>
+
+                        <div class="stat-item">
+                            <div class="stat-number gold">
+                                <span class="counter" data-target="50">0</span>+
+                            </div>
+                            <div class="stat-label">Developer Partners</div>
+                        </div>
+
+                        <div class="stat-item">
+                            <div class="stat-number blue">
+                                <span class="counter" data-target="98">0</span>%
+                            </div>
+                            <div class="stat-label">Client Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+        <a href="tel:+971-XXX-XXXX" class="float-btn">
+            <i class="fas fa-phone"></i>
+            <span>Call Back</span>
+        </a>
+        <a href="https://wa.me/971XXXXXXXXX" target="_blank" class="float-btn">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
+        </a>
+    </div>
+
+    <script>
+        // Counter Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.counter');
+            const speed = 2500; // Animation duration in ms
+
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const counter = entry.target;
+                        const target = parseInt(counter.dataset.target);
+                        const increment = target / (speed / 16);
+                        let current = 0;
+
+                        const updateCounter = () => {
+                            current += increment;
+                            if (current < target) {
+                                counter.textContent = Math.floor(current);
+                                requestAnimationFrame(updateCounter);
+                            } else {
+                                counter.textContent = target;
+                            }
+                        };
+
+                        updateCounter();
+                        observer.unobserve(counter);
+                    }
+                });
+            }, observerOptions);
+
+            counters.forEach(counter => observer.observe(counter));
+        });
+    </script>
+</body>
+{% endblock %}

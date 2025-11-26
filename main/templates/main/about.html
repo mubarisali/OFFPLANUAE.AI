@@ -1,0 +1,277 @@
+<!-- templates/main/about.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1 class="animate-fade-in">About Us</h1>
+        <p class="animate-fade-in-delay">Learn more about OffPlan UAE</p>
+    </div>
+</section>
+
+<!-- About Content -->
+<section class="about-content">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-text animate-on-scroll">
+                <h2>Who We Are</h2>
+                <p>OffPlan UAE is a leading real estate platform specializing in off-plan properties across the United Arab Emirates. With years of experience in the UAE property market, we connect investors and homebuyers with the finest developments in Dubai, Abu Dhabi, and beyond.</p>
+                <p>Our mission is to simplify the property buying process and provide our clients with access to exclusive off-plan opportunities that promise exceptional returns on investment.</p>
+                <p>We work closely with top developers and understand the intricacies of off-plan investments, ensuring our clients make informed decisions backed by comprehensive market insights.</p>
+            </div>
+            <div class="about-image animate-on-scroll">
+                <img src="{% static 'images/about-image.jpg' %}" alt="About OffPlan UAE">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Values -->
+<section class="values">
+    <div class="container">
+        <h2 class="section-title">Our Core Values</h2>
+        <div class="values-grid">
+            <div class="value-card animate-on-scroll">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Trust & Transparency</h3>
+                <p>We believe in complete transparency and building long-term relationships based on trust.</p>
+            </div>
+            <div class="value-card animate-on-scroll">
+                <i class="fas fa-star"></i>
+                <h3>Excellence</h3>
+                <p>We strive for excellence in every aspect of our service and client relationships.</p>
+            </div>
+            <div class="value-card animate-on-scroll">
+                <i class="fas fa-handshake"></i>
+                <h3>Integrity</h3>
+                <p>Honesty and ethical practices are at the heart of everything we do.</p>
+            </div>
+            <div class="value-card animate-on-scroll">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Innovation</h3>
+                <p>We continuously innovate to provide the best solutions for our clients.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics -->
+<section class="statistics">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-number counter" data-target="500">0</div>
+                <div class="stat-label">Properties Listed</div>
+            </div>
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-number counter" data-target="1200">0</div>
+                <div class="stat-label">Happy Clients</div>
+            </div>
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-number counter" data-target="50">0</div>
+                <div class="stat-label">Developer Partners</div>
+            </div>
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-number counter" data-target="15">0</div>
+                <div class="stat-label">Years Experience</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="team">
+    <div class="container">
+        <h2 class="section-title">Meet Our Team</h2>
+        <div class="team-grid">
+            <div class="team-member animate-on-scroll">
+                <div class="member-image">
+                    <img src="{% static 'images/team1.jpg' %}" alt="Team Member">
+                </div>
+                <h3>John Smith</h3>
+                <p class="member-role">CEO & Founder</p>
+                <div class="member-social">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="team-member animate-on-scroll">
+                <div class="member-image">
+                    <img src="{% static 'images/team2.jpg' %}" alt="Team Member">
+                </div>
+                <h3>Sarah Johnson</h3>
+                <p class="member-role">Head of Sales</p>
+                <div class="member-social">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="team-member animate-on-scroll">
+                <div class="member-image">
+                    <img src="{% static 'images/team3.jpg' %}" alt="Team Member">
+                </div>
+                <h3>Michael Brown</h3>
+                <p class="member-role">Investment Advisor</p>
+                <div class="member-social">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: var(--white);
+    padding: 100px 0 60px;
+    text-align: center;
+    margin-top: 80px;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.about-text h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.about-text p {
+    margin-bottom: 1rem;
+    color: var(--text-light);
+    line-height: 1.8;
+}
+
+.about-image img {
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.values {
+    background: var(--bg-light);
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.value-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.value-card i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.statistics {
+    background: var(--secondary-color);
+    color: var(--white);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.team-member {
+    text-align: center;
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.team-member:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+}
+
+.member-image {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.member-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-role {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.member-social {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.member-social a {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--bg-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.member-social a:hover {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+@media (max-width: 768px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
