@@ -3,18 +3,56 @@
 {% load humanize %}
 
 {% block title %}Browse All Properties{% endblock %}
+{% block extra_css %}
+<style>
+    .pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  font-family: 'Arial', sans-serif;
+}
 
+.pagination a, .pagination span {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px 0 6px 0;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+  background: #ceab57;
+  color: #fff;
+}
+
+.pagination .active {
+    background: linear-gradient(135deg, #b79e58 0%, #c1aa5d 25%, #d6c279 50%, #c8b15e 75%, #bfa851 100%);
+    color: #fff;
+    font-weight: bold;
+    border-color: #bfa851;
+}
+
+.pagination .disabled {
+  color: #aaa;
+  border-color: #eee;
+  cursor: default;
+}
+</style>
+{% endblock %}
 {% block content %}
 
 <!-- Exclusive Properties Section -->
 <section class="exclusive-section" style="padding: 8rem 2rem 4rem; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); text-align:center;">
 
     <!-- Badge -->
-    <div style="display:inline-block; background: #fff7e6; color:#d97706; padding:0.4rem 1rem; border-radius:20px; font-weight:600; font-size:0.9rem; margin-bottom:1rem;">PREMIUM SELECTION</div>
+    <div style="display:inline-block; background: #fff7e6; color:#c7b04c; padding:0.4rem 1rem; border-radius:20px; font-weight:600; font-size:0.9rem; margin-bottom:1rem;">PREMIUM SELECTION</div>
 
     <!-- Heading -->
     <h2 style="font-size:clamp(2rem,4vw,3.2rem); font-weight:700; color:#1e3a5f; margin-bottom:0.5rem;">
-        Exclusive <span style="background: linear-gradient(135deg,#f59e0b,#d97706); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Properties</span>
+        Exclusive <span style="background: linear-gradient(135deg,#c7b04c,#c7b04c); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Properties</span>
     </h2>
 
     <!-- Subtitle -->
@@ -27,63 +65,82 @@
 
         <!-- Search bar -->
         <div style="display:flex; align-items:center; gap:1rem; background:#ffffff; padding:1rem 1.5rem; border-radius:10px; border:1px solid #e5e7eb; margin-bottom:1.5rem;">
-            <i class="fas fa-search" style="color:#f59e0b; font-size:1.1rem;"></i>
+            <i class="fas fa-search" style="color:#c7b04c; font-size:1.1rem;"></i>
             <input type="text" placeholder="Search properties by name, location, or developer..." style="flex:1; border:none; background:transparent; font-size:0.95rem; outline:none; color:#475569;">
         </div>
 
         <!-- Refine Your Search Label -->
         <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
-            <i class="fas fa-sliders-h" style="color:#f59e0b; font-size:1rem;"></i>
+            <i class="fas fa-sliders-h" style="color:#c7b04c; font-size:1rem;"></i>
             <span style="font-weight:600; color:#1e293b; font-size:0.95rem;">Refine Your Search</span>
         </div>
 
         <!-- Filters Grid -->
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.5rem;">
             <select style="padding:0.75rem 1rem; border-radius:10px; border:1px solid #e5e7eb; font-size:0.9rem; color:#475569; background:#ffffff; cursor:pointer;">
-                <option>All Developers</option>
-                <option>Nakheel</option>
-                <option>Damac Properties</option>
-                <option>Aldar Properties</option>
-                <option>Sobha Realty</option>
+                <option disabled selected>All Developers</option>
+                 {% for dev in developers %}
+                <option>{{dev.name}}</option>
+                 {% endfor %}
             </select>
             <select style="padding:0.75rem 1rem; border-radius:10px; border:1px solid #e5e7eb; font-size:0.9rem; color:#475569; background:#ffffff; cursor:pointer;">
-                <option>All Types</option>
-                <option>Villa</option>
-                <option>Apartment</option>
-                <option>Townhouse</option>
-                <option>Penthouse</option>
+                <option disabled selected>All Types</option>
+                {% for typ in types %}
+                <option>{{typ.name}}</option>
+                {% endfor %}
+            </select>
+            
+            <!-- Price Filter Form -->
+            <form method="get" action="" id="priceFilterForm">
+                <select name="price" onchange="this.form.submit()" 
+                    style="padding:0.75rem 1rem; border-radius:10px; border:1px solid #e5e7eb; 
+                           font-size:0.9rem; color:#475569; background:#ffffff; cursor:pointer; width:100%;">
+                    <option disabled value="" {% if not selected_price %}selected{% endif %}>All Prices</option>
+                    <option value="under_500k" {% if selected_price == 'under_500k' %}selected{% endif %}>
+                        Under 500K AED
+                    </option>
+                    <option value="500k_1m" {% if selected_price == '500k_1m' %}selected{% endif %}>
+                        500K - 1M AED
+                    </option>
+                    <option value="1m_2m" {% if selected_price == '1m_2m' %}selected{% endif %}>
+                        1M - 2M AED
+                    </option>
+                    <option value="2m_3m" {% if selected_price == '2m_3m' %}selected{% endif %}>
+                        2M - 3M AED
+                    </option>
+                    <option value="3m_4m" {% if selected_price == '3m_4m' %}selected{% endif %}>
+                        3M - 4M AED
+                    </option>
+                    <option value="4m_5m" {% if selected_price == '4m_5m' %}selected{% endif %}>
+                        4M - 5M AED
+                    </option>
+                    <option value="above_5m" {% if selected_price == 'above_5m' %}selected{% endif %}>
+                        Above 5M AED
+                    </option>
+                </select>
+            </form>
+            
+            <select style="padding:0.75rem 1rem; border-radius:10px; border:1px solid #e5e7eb; font-size:0.9rem; color:#475569; background:#ffffff; cursor:pointer;">
+                <option disabled selected>All Locations</option>
+                {% for loc in location %}
+                <option>{{loc.name}}</option>
+                {% endfor %}
             </select>
             <select style="padding:0.75rem 1rem; border-radius:10px; border:1px solid #e5e7eb; font-size:0.9rem; color:#475569; background:#ffffff; cursor:pointer;">
-                <option>All Prices</option>
-                <option>Under 2M AED</option>
-                <option>2M - 5M AED</option>
-                <option>5M - 10M AED</option>
-                <option>Above 10M AED</option>
-            </select>
-            <select style="padding:0.75rem 1rem; border-radius:10px; border:1px solid #e5e7eb; font-size:0.9rem; color:#475569; background:#ffffff; cursor:pointer;">
-                <option>All Locations</option>
-                <option>Palm Jumeirah</option>
-                <option>Downtown Dubai</option>
-                <option>Yas Island</option>
-                <option>Mohammed Bin Rashid City</option>
-            </select>
-            <select style="padding:0.75rem 1rem; border-radius:10px; border:1px solid #e5e7eb; font-size:0.9rem; color:#475569; background:#ffffff; cursor:pointer;">
-                <option>All Bedrooms</option>
-                <option>Studio</option>
-                <option>1 Bedroom</option>
-                <option>2 Bedrooms</option>
-                <option>3 Bedrooms</option>
-                <option>4+ Bedrooms</option>
+                <option disabled selected>Status</option>
+                {% for sts in status %}
+                <option>{{sts.name}}</option>
+                {% endfor %}
             </select>
         </div>
 
         <!-- Result Count + Clear Filters -->
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem;">
             <div style="color:#64748b; font-weight:500;">
-                <i class="fas fa-home" style="color:#f59e0b; margin-right:0.3rem;"></i>
-                <span style="color:#1e293b; font-weight:600;">{{ properties|length }} Properties Found</span>
+                <i class="fas fa-home" style="color:#c7b04c; margin-right:0.3rem;"></i>
+                <span style="color:#1e293b; font-weight:600;">{{ project.paginator.count }} Properties Found</span>
             </div>
-            <a href="#" style="color:#f59e0b; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:0.3rem;">
+            <a href="{% url 'main:properties' %}" style="color:#c7b04c; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:0.3rem;">
                 Clear Filters <i class="fas fa-times" style="font-size:0.8rem;"></i>
             </a>
         </div>
@@ -92,56 +149,96 @@
     <!-- Properties Grid -->
     <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:2rem; max-width:1300px; margin:0 auto;">
 
-        {% for p in properties %}
-        <!-- Property Card -->
-        <div style="background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); overflow:hidden; transition:transform 0.3s ease, box-shadow 0.3s ease; position:relative;">
-            <div style="position:relative; overflow:hidden;">
-                <img src="{{ p.image.url }}" alt="{{ p.name }}" style="width:100%; height:240px; object-fit:cover; transition:transform 0.3s ease;">
-                <div style="position:absolute; top:12px; left:12px; background:#1e3a5f; color:white; padding:0.4rem 0.8rem; border-radius:8px; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:0.3rem;">
-                    <i class="fas fa-bed" style="font-size:0.8rem;"></i> {{ p.bedrooms }} BR
-                </div>
-                <div style="position:absolute; top:12px; right:12px; background:#f59e0b; color:white; padding:0.4rem 0.9rem; border-radius:8px; font-size:0.75rem; font-weight:700;">
-                    {{ p.property_type|upper }}
-                </div>
-            </div>
-            <div style="padding:1.5rem;">
-                <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.8rem; color:#64748b; font-size:0.85rem;">
-                    <i class="fas fa-map-marker-alt" style="color:#f59e0b;"></i>
-                    <span>{{ p.location }}</span>
-                </div>
-                <h3 style="font-size:1.3rem; font-weight:700; color:#1e293b; margin-bottom:0.5rem;">{{ p.name }}</h3>
-                
-                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
-                    {% if p.developer.logo %}
-                    <img src="{{ p.developer.logo.url }}" style="width:24px; height:24px; border-radius:4px; object-fit:cover;" alt="{{ p.developer.name }}">
-                    {% else %}
-                    <img src="https://via.placeholder.com/32x32" style="width:24px; height:24px; border-radius:4px;">
-                    {% endif %}
-                    <div>
-                        <div style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em;">Developer</div>
-                        <div style="font-size:0.9rem; color:#475569; font-weight:600;">{{ p.developer.name }}</div>
-                    </div>
-                </div>
+     {% for more in project %}
+<div style="background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); overflow:hidden; transition:transform 0.3s ease, box-shadow 0.3s ease; position:relative;">
 
-                <div style="margin-bottom:1.2rem;">
-                    <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.2rem;">Starting Price</div>
-                    <div style="font-size:1.6rem; font-weight:700; color:#f59e0b;">AED {{ p.price|floatformat:0|intcomma }}</div>
-                </div>
-           
-                <a href="{% url 'main:property_detail' p.id %}" style="display:block; text-align:center; background:#1e3a5f; color:white; padding:0.85rem; border-radius:10px; font-size:0.9rem; font-weight:600; text-decoration:none; transition:background 0.3s ease;">
-                    View Details <i class="fas fa-eye" style="margin-left:0.4rem;"></i>
-                </a>
+    <div style="position:relative; overflow:hidden;">
+        <img src="{{ more.cover }}" style="width:100%; height:240px; object-fit:cover; transition:transform 0.3s ease;">
+
+        <div style="position:absolute; top:12px; left:12px; background:#1e3a5f; color:white; padding:0.4rem 0.8rem; border-radius:8px; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:0.3rem;">
+           {{ more.property_status.name }} 
+        </div>
+
+        <div style="position:absolute; top:12px; right:12px; background:#c7b04c; color:white; padding:0.4rem 0.9rem; border-radius:8px; font-size:0.75rem; font-weight:700;">
+            {{ more.property_type|upper }}
+        </div>
+    </div>
+
+    <div style="padding:1.5rem;">
+
+        <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.8rem; color:#64748b; font-size:0.85rem;">
+            <i class="fas fa-map-marker-alt" style="color:#c7b04c;"></i>
+            <span>{{ more.district.name }}, {{ more.city.name }}</span>
+        </div>
+
+        <h3 style="font-size:1.3rem; font-weight:700; color:#1e293b; margin-bottom:0.5rem;">
+            {{ more.title }}
+        </h3>
+
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+            <img src="{{ more.developer.logo }}" style="width:60px; height:60px; border-radius:4px; object-fit:cover;" alt="{{ more.developer.name }}">
+            
+            <div>
+                <div style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em;">Developer</div>
+                <div style="font-size:0.9rem; color:#475569; font-weight:600;">{{ more.developer.name }}</div>
             </div>
         </div>
-        {% empty %}
-        <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:#64748b;">
-            <i class="fas fa-home" style="font-size:3rem; margin-bottom:1rem; opacity:0.3;"></i>
-            <p style="font-size:1.1rem;">No properties found matching your criteria.</p>
+
+        <div style="margin-bottom:1.2rem;">
+            <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.2rem;">Starting Price</div>
+            <div style="font-size:1.6rem; font-weight:700; color:#c7b04c;">AED {{ more.low_price|intcomma }}</div>
         </div>
-        {% endfor %}
+
+        <a href="{% url 'main:properties_detail' slug=more.slug %}"
+           style="display:block; text-align:center; background:#1e3a5f; color:white; padding:0.85rem; border-radius:10px; font-size:0.9rem; font-weight:600; text-decoration:none; transition:background 0.3s ease;">
+            View Details <i class="fas fa-eye" style="margin-left:0.4rem;"></i>
+        </a>
+
+    </div>
+</div>
+
+{% empty %}
+<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:#64748b;">
+    <i class="fas fa-home" style="font-size:3rem; margin-bottom:1rem; opacity:0.3;"></i>
+    <p style="font-size:1.1rem;">No properties found matching your criteria.</p>
+</div>
+{% endfor %}
 
     </div>
 
+<!-- Pagination -->
+<div class="pagination">
+    
+    <!-- First Page -->
+    {% if project.has_previous %}
+        <a href="?page=1{% if selected_price %}&price={{ selected_price }}{% endif %}">First</a>
+    {% endif %}
+
+    <!-- Previous Page -->
+    {% if project.has_previous %}
+        <a href="?page={{ project.previous_page_number }}{% if selected_price %}&price={{ selected_price }}{% endif %}">Prev</a>
+    {% endif %}
+
+    <!-- Page Numbers -->
+    {% for num in project.paginator.page_range %}
+        {% if num == project.number %}
+            <span class="active">{{ num }}</span>
+        {% elif num >= project.number|add:-2 and num <= project.number|add:2 %}
+            <a href="?page={{ num }}{% if selected_price %}&price={{ selected_price }}{% endif %}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Next Page -->
+    {% if project.has_next %}
+        <a href="?page={{ project.next_page_number }}{% if selected_price %}&price={{ selected_price }}{% endif %}">Next</a>
+    {% endif %}
+
+    <!-- Last Page -->
+    {% if project.has_next %}
+        <a href="?page={{ project.paginator.num_pages }}{% if selected_price %}&price={{ selected_price }}{% endif %}">Last</a>
+    {% endif %}
+
+</div>
 </section>
 
 {% endblock %}

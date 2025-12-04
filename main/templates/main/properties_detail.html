@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
-
+{% load custom_filters %}
 {% block title %}{{ property.name }} - Property Details{% endblock %}
 
 {% block content %}
@@ -337,14 +337,14 @@
 
 <!-- HERO SECTION -->
 <section style="position: relative; min-height: 60vh; overflow: hidden; background: #f8fafc;">
-    {% if property.image %}
-    <img src="{{ property.image.url }}" alt="{{ property.name }}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.25;">
+    {% if property.cover %}
+    <img src="{{ property.cover }}" alt="{{ property.title }}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.25;">
     {% endif %}
     
     <div style="position: relative; max-width: 1400px; margin: 0 auto; padding: 8rem 2rem 6rem; display: flex; flex-direction: column; justify-content: center;">
         
         <!-- Back Button -->
-        <a href="{% url 'main:home' %}" style="position: absolute; top: 2rem; left: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; background: white; padding: 0.625rem 1.25rem; border-radius: 10px; text-decoration: none; color: #1e293b; font-weight: 600; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <a href="{% url 'main:properties' %}" style="position: absolute; top: 2rem; left: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; background: white; padding: 0.625rem 1.25rem; border-radius: 10px; text-decoration: none; color: #1e293b; font-weight: 600; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <i class="fas fa-arrow-left"></i> Back
         </a>
 
@@ -352,19 +352,19 @@
             <!-- Developer Badge -->
             <div style="display: inline-flex; align-items: center; gap: 0.75rem; background: white; padding: 0.5rem 1rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                 {% if property.developer.logo %}
-                <img src="{{ property.developer.logo.url }}" alt="{{ property.developer.name }}" style="height: 1.75rem; object-fit: contain;">
+                <img src="{{ property.developer.logo }}" alt="{{ property.developer.name }}" style="height: 1.75rem; object-fit: contain;">
                 {% endif %}
                 <span style="font-size: 0.875rem; color: #64748b; font-weight: 500;">by {{ property.developer.name }}</span>
             </div>
 
             <!-- Property Name -->
-            <h1 style="font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 700; color: #1e293b; margin-bottom: 1.5rem; line-height: 1.1;">{{ property.name }}</h1>
+            <h1 style="font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 700; color: #1e293b; margin-bottom: 1.5rem; line-height: 1.1;">{{ property.title }}</h1>
 
             <!-- Property Info -->
             <div style="display: flex; flex-wrap: wrap; gap: 1.75rem; color: #64748b; margin-bottom: 1.5rem; font-size: 1rem;">
                 <span style="display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-map-marker-alt" style="color: #c7b04c; font-size: 1.125rem;"></i> 
-                    <span style="font-weight: 500;">{{ property.location }}</span>
+                    <span style="font-weight: 500;">{{ property.district.name }},{{ property.city.name }}</span>
                 </span>
                 <span style="display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-bed" style="color: #c7b04c; font-size: 1.125rem;"></i> 
@@ -373,12 +373,12 @@
                
                 <span style="display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-expand-arrows-alt" style="color: #c7b04c; font-size: 1.125rem;"></i> 
-                    <span style="font-weight: 500;">{{ property.size }} sqft</span>
+                    <span style="font-weight: 500;">{{ property.min_area }} sqft</span>
                 </span>
             </div>
 
             <!-- Price -->
-            <div style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: #c7b04c;">AED {{ property.price|floatformat:0|intcomma }}</div>
+            <div style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: #c7b04c;">AED {{ property.low_price|floatformat:0|intcomma }}</div>
         </div>
     </div>
 </section>
@@ -401,12 +401,12 @@
                 </div>
 
                 <!-- UNIT DETAILS -->
-                {% if property.unit_details.all %}
+                {% if property.grouped_apartments.all %}
                 <div>
                     <h2 style="font-size: 1.875rem; font-weight: 700; color: #0f172a; margin-bottom: 1.5rem;">Unit Details</h2>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
-                        {% for unit in property.unit_details.all %}
+                        {% for unit in units.all %}
                         <div class="unit-card" style="padding: 1.75rem; background: #fff; border: 1px solid #e2e8f0;
                                     border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); cursor: pointer;">
                             <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
@@ -417,7 +417,7 @@
                                 <p><strong>{{ unit.rooms }}</strong> Rooms</p>
                                 <p><strong>{{ unit.size }}</strong> sqft</p>
                                 <p style="margin-top: .75rem; font-size: 1.125rem; color: #c7b04c; font-weight: 700;">
-                                    AED {{ unit.price|floatformat:0|intcomma }}
+                                    AED {{ unit.min_price|floatformat:0|intcomma }}
                                 </p>
                             </div>
                         </div>
@@ -427,16 +427,16 @@
                 {% endif %}
 
                 <!-- AMENITIES -->
-                {% if property.amenities.all %}
+                {% if property.facilities.all %}
                 <div>
                     <h2 style="font-size: 1.875rem; font-weight: 700; color: #0f172a; margin-bottom: 1.5rem;">Amenities</h2>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem;">
-                        {% for amenity in property.amenities.all %}
+                        {% for amenity in property.facilities.all %}
                         <div class="amenity-item" style="padding: 1rem; background: #fff; border: 1px solid #e2e8f0;
                                     border-radius: 12px; display: flex; align-items: center; gap: 1rem; cursor: pointer;">
                             <div style="padding: 0.75rem; background: rgba(199, 176, 76, 0.15); border-radius: 10px; transition: all 0.3s ease;">
-                                <i class="fas {{ amenity.icon }}" style="color: #c7b04c; font-size: 1.25rem;"></i>
+                                <i class="{{ amenity.name|facility_icon }}" style="color: #c7b04c; font-size: 1.25rem;"></i>
                             </div>
                             <span style="font-weight: 600; color: #0f172a;">{{ amenity.name }}</span>
                         </div>
@@ -446,14 +446,14 @@
                 {% endif %}
 
                 <!-- GALLERY -->
-                {% if property.gallery.all %}
+                {% if property.property_images.all %}
                 <div>
                     <h2 style="font-size: 1.875rem; font-weight: 700; color: #0f172a; margin-bottom: 1.5rem;">Gallery</h2>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-                        {% for image in property.gallery.all %}
+                        {% for image in images.all %}
                         <div class="gallery-item" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); cursor: pointer;">
-                            <img src="{{ image.image.url }}" style="width: 100%; height: 220px; object-fit: cover;">
+                            <img src="{{ image.image }}" style="width: 100%; height: 220px; object-fit: cover;">
                         </div>
                         {% endfor %}
                     </div>
@@ -461,15 +461,19 @@
                 {% endif %}
 
                 <!-- LOCATION MAP -->
-                {% if property.map_embed_url %}
                 <div>
                     <h2 style="font-size: 1.875rem; font-weight: 700; color: #0f172a; margin-bottom: 1.5rem;">Location</h2>
 
                     <div style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.12);">
-                        <iframe src="{{ property.map_embed_url }}" style="width: 100%; height: 400px; border: none;" allowfullscreen loading="lazy"></iframe>
+                    {% if lat and lng %}
+                    <iframe width="100%" height="450" style="border:0" loading="lazy" allowfullscreen
+                        src="https://maps.google.com/maps?q={{ lat }},{{ lng }}&hl=en&z=15&output=embed">
+                    </iframe>
+                    {% else %}
+                    <p>Map not available</p>
+                    {% endif %}
                     </div>
                 </div>
-                {% endif %}
             </div>
 
             <!-- RIGHT SIDEBAR (CONTACT FORM) -->
@@ -495,14 +499,7 @@
                        <i class="fab fa-whatsapp"></i> WhatsApp
                     </a>
 
-                    <a href="/sample.pdf" target="_blank"
-                       style="display:block; border:2px solid #e2e8f0; padding:1rem;
-                       border-radius:12px; font-weight:600; text-align:center;
-                       text-decoration:none; color:#0f172a; transition: all .3s;"
-                       onmouseover="this.style.color='#c7b04c'; this.style.borderColor='#c7b04c'"
-                       onmouseout="this.style.color='#0f172a'; this.style.borderColor='#e2e8f0'">
-                       <i class="fas fa-download"></i> Download PDF
-                    </a>
+                   
 
                     <!-- Contact Form -->
                     <form method="post" style="margin-top:2rem; display:flex; flex-direction:column; gap:1rem;">

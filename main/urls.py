@@ -10,7 +10,7 @@ urlpatterns = [
     path('blog/<int:blog_id>/', views.blog_detail, name='blog_detail'),
     path('contact/', views.contact, name='contact'),
     path('properties/', views.properties, name='properties'),
-    path('properties_detail/', views.properties_detail, name='properties_detail'),
-    path('properties/<int:property_id>/', views.properties_detail, name='properties_detail'),
-    
+    # path('properties_detail/', views.properties_detail, name='properties_detail'),
+    path('property/<slug:slug>/', views.properties_detail, name='properties_detail'),
+
 ]   

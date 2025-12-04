@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load humanize %}
 {% block content %}
 <style>
     * {
@@ -901,6 +901,99 @@
     .partner-card.highlighted .partner-name {
         color: #c7b04c;
     }
+    .section-badge {
+    display: inline-block;
+    padding: 10px 25px;
+    background: #fff7dd;          /* Light cream background */
+    color: #c7b04c;               /* Gold text */
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-badge i {
+    margin-right: 8px;
+    color: #c7b04c;               /* Gold icon */
+}
+
+    .section-highlight {
+    color: #c7b04c !important;    /* Gold for the word Developer */
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+     /* Navigation Buttons */
+    .nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e5e7eb;
+        color: #1e3a5f;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-btn:hover {
+        background: #c7b04c;
+        color: white;
+        border-color: #c7b04c;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 6px 20px rgba(199, 176, 76, 0.3);
+    }
+
+    .nav-btn:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+
+    .nav-btn-prev {
+        left: 10px;
+    }
+
+    .nav-btn-next {
+        right: 10px;
+    }
+
+    /* Carousel Indicators */
+    .carousel-indicators {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 40px;
+    }
+
+    .indicator-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0;
+    }
+
+    .indicator-dot:hover {
+        background: #94a3b8;
+    }
+
+    .indicator-dot.active {
+        background: #c7b04c;
+        width: 32px;
+        border-radius: 5px;
+    }
     /* ============================================
        ADDITIONAL RESPONSIVE FIXES FOR ENTIRE PAGE
        ============================================ */
@@ -1182,11 +1275,13 @@
 <section class="exclusive-section" style="padding: 4rem 2rem 6rem; background: #f8fafb;">
 
     <!-- Search + Filters Container -->
-    <div class="search-filter-container">
-        <!-- Search bar -->
+    <!-- Search + Filters Container - REPLACE ENTIRE SECTION -->
+<div class="search-filter-container">
+    <!-- Search bar -->
+    <form method="get" action="" id="filterForm">
         <div class="search-bar">
             <i class="fas fa-search" style="color:#c7b04c; font-size:1.1rem;"></i>
-            <input type="text" placeholder="Search properties by name, location, or developer...">
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search properties by name, location, or developer...">
         </div>
 
         <!-- Refine Your Search Label -->
@@ -1197,41 +1292,65 @@
 
         <!-- Filters Grid -->
         <div class="filters-grid">
-            <select>
-                <option>All Developers</option>
-                <option>Nakheel</option>
-                <option>Damac Properties</option>
-                <option>Aldar Properties</option>
-                <option>Sobha Realty</option>
+            <select name="developer" onchange="this.form.submit()">
+                <option value="">All Developers</option>
+                {% for dev in developers %}
+                <option value="{{ dev.id }}" {% if request.GET.developer == dev.id|stringformat:"s" %}selected{% endif %}>
+                    {{ dev.name }}
+                </option>
+                {% endfor %}
             </select>
-            <select>
-                <option>All Types</option>
-                <option>Apartment</option>
-                <option>Townhouse</option>
-                <option>Penthouse</option>
-                <option>Villas</option>
+
+            <select name="type" onchange="this.form.submit()">
+                <option value="">All Types</option>
+                {% for typ in types %}
+                <option value="{{ typ.id }}" {% if request.GET.type == typ.id|stringformat:"s" %}selected{% endif %}>
+                    {{ typ.name }}
+                </option>
+                {% endfor %}
             </select>
-            <select>
-                <option>All Prices</option>
-                <option>Under 2M AED</option>
-                <option>2M - 5M AED</option>
-                <option>5M - 10M AED</option>
-                <option>Above 10M AED</option>
+
+            <select name="price" onchange="this.form.submit()">
+                <option value="">All Prices</option>
+                <option value="under_500k" {% if selected_price == 'under_500k' %}selected{% endif %}>
+                    Under 500K AED
+                </option>
+                <option value="500k_1m" {% if selected_price == '500k_1m' %}selected{% endif %}>
+                    500K - 1M AED
+                </option>
+                <option value="1m_2m" {% if selected_price == '1m_2m' %}selected{% endif %}>
+                    1M - 2M AED
+                </option>
+                <option value="2m_3m" {% if selected_price == '2m_3m' %}selected{% endif %}>
+                    2M - 3M AED
+                </option>
+                <option value="3m_4m" {% if selected_price == '3m_4m' %}selected{% endif %}>
+                    3M - 4M AED
+                </option>
+                <option value="4m_5m" {% if selected_price == '4m_5m' %}selected{% endif %}>
+                    4M - 5M AED
+                </option>
+                <option value="above_5m" {% if selected_price == 'above_5m' %}selected{% endif %}>
+                    Above 5M AED
+                </option>
             </select>
-            <select>
-                <option>All Locations</option>
-                <option>Palm Jumeirah</option>
-                <option>Downtown Dubai</option>
-                <option>Yas Island</option>
-                <option>Mohammed Bin Rashid City</option>
+
+            <select name="location" onchange="this.form.submit()">
+                <option value="">All Locations</option>
+                {% for loc in location %}
+                <option value="{{ loc.id }}" {% if request.GET.location == loc.id|stringformat:"s" %}selected{% endif %}>
+                    {{ loc.name }}
+                </option>
+                {% endfor %}
             </select>
-            <select>
-                <option>All Bedrooms</option>
-                <option>Studio</option>
-                <option>1 Bedroom</option>
-                <option>2 Bedrooms</option>
-                <option>3 Bedrooms</option>
-                <option>4+ Bedrooms</option>
+
+            <select name="status" onchange="this.form.submit()">
+                <option value="">All Status</option>
+                {% for sts in status %}
+                <option value="{{ sts.id }}" {% if request.GET.status == sts.id|stringformat:"s" %}selected{% endif %}>
+                    {{ sts.name }}
+                </option>
+                {% endfor %}
             </select>
         </div>
 
@@ -1239,13 +1358,14 @@
         <div class="filter-results">
             <div class="filter-results-count">
                 <i class="fas fa-home"></i>
-                <span>4 Properties Found</span> of 8 total
+                <span>{{ filtered_count }} Properties Found</span> of {{ total_count }} total
             </div>
-            <a href="#" class="clear-filters">
+            <a href="{% url 'main:home' %}" class="clear-filters">
                 Clear Filters <i class="fas fa-times" style="font-size:0.8rem;"></i>
             </a>
         </div>
-    </div>
+    </form>
+</div>
 
     <!-- Properties Grid -->
     <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:2rem; max-width:1300px; margin:0 auto;">
@@ -1256,7 +1376,7 @@
             <div style="position:relative; overflow:hidden;">
                 <img src="{{ prop.cover }}" style="width:100%; height:240px; object-fit:cover; transition:transform 0.3s ease;">
                 <div style="position:absolute; top:12px; left:12px; background:#1e3a5f; color:white; padding:0.4rem 0.8rem; border-radius:8px; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:0.3rem;">
-                    <i class="fas fa-bed" style="font-size:0.8rem;"></i> 4 BR
+                     {{ prop.property_status.name }} 
                 </div>
                 <div style="position:absolute; top:12px; right:12px; background:#c7b04c; color:white; padding:0.4rem 0.9rem; border-radius:8px; font-size:0.75rem; font-weight:700;">
                      {{ prop.property_type|upper }}
@@ -1265,7 +1385,7 @@
             <div style="padding:1.5rem;">
                 <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.8rem; color:#64748b; font-size:0.85rem;">
                     <i class="fas fa-map-marker-alt" style="color:#c7b04c;"></i>
-                    <span>{{ prop.city.name }}</span>
+                    <span>{{ prop.district.name }}, {{ prop.city.name }}</span>
                 </div>
                 <h3 style="font-size:1.3rem; font-weight:700; color:#1e293b; margin-bottom:0.5rem;">{{ prop.title }}</h3>
                 
@@ -1279,10 +1399,10 @@
 
                 <div style="margin-bottom:1.2rem;">
                     <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.2rem;">Starting Price</div>
-                    <div style="font-size:1.6rem; font-weight:700; color:#c7b04c;">{{ prop.low_price }}</div>
+                    <div style="font-size:1.6rem; font-weight:700; color:#c7b04c;">AED {{ prop.low_price|intcomma }}</div>
                 </div>
 
-                <a href="#" style="display:block; text-align:center; background:#1e3a5f; color:white; padding:0.85rem; border-radius:10px; font-size:0.9rem; font-weight:600; text-decoration:none; transition:background 0.3s ease;">
+                <a href="{% url 'main:properties_detail' slug=prop.slug %}" style="display:block; text-align:center; background:#1e3a5f; color:white; padding:0.85rem; border-radius:10px; font-size:0.9rem; font-weight:600; text-decoration:none; transition:background 0.3s ease;">
                     View Details <i class="fas fa-eye" style="margin-left:0.4rem;"></i>
                 </a>
             </div>
@@ -1290,7 +1410,34 @@
         {% endfor %}
     </div>
 </section>
-
+<section class="partners-wrapper">
+    <div class="partners-container">
+        <div class="partners-header">
+            <div class="section-badge"><i class="fas fa-shield-alt"></i> TRUSTED PARTNERS</div>
+            <h2 class="section-title">Our <span class="section-highlight">Developer</span> Partners</h2>
+            <p class="section-subtitle">Partnering with the UAE's most prestigious and trusted property developers</p>
+        </div>
+        <div class="carousel-wrapper">
+            <button class="nav-btn nav-btn-prev" onclick="prevSlide()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="carousel-track" id="carouselTrack">
+                {% for prop in developer %}
+                <div class="partner-card">
+                    <div class="partner-logo-wrapper">
+                        <img src="{{ prop.logo }}" alt="Emaar Properties" class="partner-logo">
+                    </div>
+                    <h3 class="partner-name">{{ prop.name }}</h3>
+                </div>
+                   {% endfor %}
+            </div>
+            <button class="nav-btn nav-btn-next" onclick="nextSlide()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="carousel-indicators" id="carouselIndicators"></div>
+    </div>
+</section>
 <!-- Newsletter -->
 <div class="newsletter-section">
     <div class="newsletter-content">
@@ -1748,6 +1895,116 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+
+
+// Partners Carousel
+let currentSlide = 0;
+const carouselTrack = document.getElementById('carouselTrack');
+const partnerCards = document.querySelectorAll('.partner-card');
+const indicatorsContainer = document.getElementById('carouselIndicators');
+let slidesPerView = 3;
+let autoplayInterval;
+
+function updateSlidesPerView() {
+    slidesPerView = window.innerWidth <= 767 ? 1 : window.innerWidth <= 991 ? 2 : 3;
+}
+
+function getTotalSlides() {
+    return Math.max(0, partnerCards.length - slidesPerView + 1);
+}
+
+function createIndicators() {
+    if (!indicatorsContainer) return;
+    indicatorsContainer.innerHTML = '';
+    const totalSlides = getTotalSlides();
+    for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.classList.add('indicator-dot');
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(i));
+        indicatorsContainer.appendChild(dot);
+    }
+}
+
+function updateCarousel() {
+    if (!carouselTrack || partnerCards.length === 0) return;
+    const firstCard = partnerCards[0];
+    const cardWidth = firstCard.offsetWidth;
+    const gap = parseInt(window.getComputedStyle(carouselTrack).gap) || 24;
+    const offset = currentSlide * (cardWidth + gap);
+    carouselTrack.style.transform = `translateX(-${offset}px)`;
+    
+    const dots = indicatorsContainer?.querySelectorAll('.indicator-dot');
+    if (dots) {
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+    }
+    
+    partnerCards.forEach((card, index) => {
+        const centerIndex = currentSlide + Math.floor(slidesPerView / 2);
+        const isCenter = index === centerIndex && index >= currentSlide && index < currentSlide + slidesPerView;
+        card.classList.toggle('highlighted', isCenter);
+    });
+}
+
+function nextSlide() {
+    const maxSlide = getTotalSlides() - 1;
+    currentSlide = currentSlide < maxSlide ? currentSlide + 1 : 0;
+    updateCarousel();
+    resetAutoplay();
+}
+
+function prevSlide() {
+    const maxSlide = getTotalSlides() - 1;
+    currentSlide = currentSlide > 0 ? currentSlide - 1 : maxSlide;
+    updateCarousel();
+    resetAutoplay();
+}
+
+function goToSlide(index) {
+    currentSlide = Math.max(0, Math.min(index, getTotalSlides() - 1));
+    updateCarousel();
+    resetAutoplay();
+}
+
+function startAutoplay() {
+    autoplayInterval = setInterval(nextSlide, 4000);
+}
+
+function resetAutoplay() {
+    clearInterval(autoplayInterval);
+    startAutoplay();
+}
+
+function initCarousel() {
+    if (!carouselTrack || partnerCards.length === 0) return;
+    updateSlidesPerView();
+    createIndicators();
+    updateCarousel();
+    startAutoplay();
+    
+    window.addEventListener('resize', () => {
+        setTimeout(() => {
+            const oldSlidesPerView = slidesPerView;
+            updateSlidesPerView();
+            if (oldSlidesPerView !== slidesPerView) {
+                currentSlide = Math.min(currentSlide, getTotalSlides() - 1);
+                createIndicators();
+                updateCarousel();
+            }
+        }, 250);
+    });
+    
+    carouselTrack.addEventListener('mouseenter', () => clearInterval(autoplayInterval));
+    carouselTrack.addEventListener('mouseleave', startAutoplay);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarousel);
+} else {
+    initCarousel();
+}
 
 </script>
 

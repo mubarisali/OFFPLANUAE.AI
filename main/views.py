@@ -1,22 +1,95 @@
 # offplanuae/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.db.models import Prefetch
 from django.http import JsonResponse
-from .models import Property
+from .models import *
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.utils.html import strip_tags
 
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 def home(request):
-    """Render the home page"""
-    offplan = Property.objects.order_by('-low_price')[:8]
+    """Render the home page with complete filtering"""
+    # Get all properties initially
+    all_properties = Property.objects.all()
+    total_count = all_properties.count()
+    
+    # Start with all properties for filtering
+    filtered_properties = all_properties
+    
+    # Get filter parameters from request
+    search_query = request.GET.get('search', '').strip()
+    price_filter = request.GET.get('price', '')
+    developer_filter = request.GET.get('developer', '')
+    type_filter = request.GET.get('type', '')
+    location_filter = request.GET.get('location', '')
+    status_filter = request.GET.get('status', '')
+    
+    # Apply search filter
+    if search_query:
+        from django.db.models import Q
+        filtered_properties = filtered_properties.filter(
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(developer__name__icontains=search_query) |
+            Q(city__name__icontains=search_query) |
+            Q(district__name__icontains=search_query)
+        )
+    
+    # Apply price filter
+    if price_filter == 'under_500k':
+        filtered_properties = filtered_properties.filter(low_price__lt=500000)
+    elif price_filter == '500k_1m':
+        filtered_properties = filtered_properties.filter(low_price__gte=500000, low_price__lt=1000000)
+    elif price_filter == '1m_2m':
+        filtered_properties = filtered_properties.filter(low_price__gte=1000000, low_price__lt=2000000)
+    elif price_filter == '2m_3m':
+        filtered_properties = filtered_properties.filter(low_price__gte=2000000, low_price__lt=3000000)
+    elif price_filter == '3m_4m':
+        filtered_properties = filtered_properties.filter(low_price__gte=3000000, low_price__lt=4000000)
+    elif price_filter == '4m_5m':
+        filtered_properties = filtered_properties.filter(low_price__gte=4000000, low_price__lt=5000000)
+    elif price_filter == 'above_5m':
+        filtered_properties = filtered_properties.filter(low_price__gte=5000000)
+    
+    # Apply developer filter
+    if developer_filter:
+        filtered_properties = filtered_properties.filter(developer_id=developer_filter)
+    
+    # Apply type filter
+    if type_filter:
+        filtered_properties = filtered_properties.filter(property_type_id=type_filter)
+    
+    # Apply location filter
+    if location_filter:
+        filtered_properties = filtered_properties.filter(city_id=location_filter)
+    
+    # Apply status filter
+    if status_filter:
+        filtered_properties = filtered_properties.filter(sales_status_id=status_filter)
+    
+    # Get count after filtering
+    filtered_count = filtered_properties.count()
+    
+    # Limit to 8 for display and order by price
+    offplan = filtered_properties.order_by('-low_price')[:8]
+    developer = Developer.objects.all()[:10]
+    
     context = {
-        'offplan':offplan,
+        'offplan': offplan,
+        'developer': developer,
+        'developers': Developer.objects.all(),
+        'types': PropertyType.objects.all().exclude(name__iexact='Unknown Type'),
+        'location': City.objects.all().exclude(name__iexact='Unnamed City'),
+        'status': SalesStatus.objects.all(),
+        'selected_price': price_filter,
+        'filtered_count': filtered_count,
+        'total_count': total_count,
         'page_title': 'Home - Off Plan UAE',
         'meta_description': 'Discover premium off-plan properties in UAE',
     }
     return render(request, 'main/home.html', context)
-
 def about(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -394,117 +467,101 @@ def contact(request):
     }
     return render(request, 'main/contact.html', context)
 def properties(request):
-    return render(request, 'main/properties.html')
-
-def properties_detail(request, property_id=None):
-    """Render the property detail page with demo data if no property_id"""
+    # Get all properties initially
+    project = Property.objects.all()
+    logo = Developer.objects.all()
     
-    # If property_id provided and Property model exists, try to load from database
-    if property_id and Property:
-        try:
-            property_obj = Property.objects.get(id=property_id)
-            
-            # Handle contact form submission
-            if request.method == 'POST':
-                name = request.POST.get('name')
-                email = request.POST.get('email')
-                phone = request.POST.get('phone')
-                message = request.POST.get('message')
-                
-                messages.success(request, 'Thank you for your inquiry! We will contact you soon.')
-                return redirect('main:properties_detail', property_id=property_id)
-            
-            context = {
-                'property': property_obj,
-                'page_title': f'{property_obj.name} - Property Details',
-                'meta_description': f'{property_obj.description[:160]}',
-            }
-            return render(request, 'main/properties_detail.html', context)
-        except:
-            pass
+    # Get price filter from request
+    price_filter = request.GET.get('price', '')
     
-    # Demo data structure matching the model
-    class DemoObject:
-        def __init__(self, **kwargs):
-            for key, value in kwargs.items():
-                setattr(self, key, value)
-        
-        def all(self):
-            return getattr(self, '_items', [])
+    # Apply price filters
+    if price_filter == 'under_500k':
+        project = project.filter(low_price__lt=500000)
+    elif price_filter == '500k_1m':
+        project = project.filter(low_price__gte=500000, low_price__lt=1000000)
+    elif price_filter == '1m_2m':
+        project = project.filter(low_price__gte=1000000, low_price__lt=2000000)
+    elif price_filter == '2m_3m':
+        project = project.filter(low_price__gte=2000000, low_price__lt=3000000)
+    elif price_filter == '3m_4m':
+        project = project.filter(low_price__gte=3000000, low_price__lt=4000000)
+    elif price_filter == '4m_5m':
+        project = project.filter(low_price__gte=4000000, low_price__lt=5000000)
+    elif price_filter == 'above_5m':
+        project = project.filter(low_price__gte=5000000)
     
-    # Create demo developer
-    demo_developer = DemoObject(
-        name="Emaar Properties",
-        logo=DemoObject(url="{% static 'img/emaar.png' %}")
-    )
-    
-    # Create demo unit details
-    demo_units = [
-        DemoObject(
-            unit_type="Apartment",
-            rooms=1,
-            size=508,
-            price=853879
-        ),
-        DemoObject(
-            unit_type="Apartment",
-            rooms=2,
-            size=1126,
-            price=1833874
-        ),
-        DemoObject(
-            unit_type="Apartment",
-            rooms=3,
-            size=2672,
-            price=4040459
-        ),
-    ]
-    
-    # Create demo amenities
-    demo_amenities = [
-        DemoObject(name="Swimming Pool", icon="fa-swimming-pool"),
-        DemoObject(name="Fitness Center", icon="fa-dumbbell"),
-        DemoObject(name="Covered Parking", icon="fa-car"),
-        DemoObject(name="24/7 Security", icon="fa-shield-alt"),
-        DemoObject(name="Landscaped Gardens", icon="fa-tree"),
-        DemoObject(name="Retail Outlets", icon="fa-shopping-bag"),
-        DemoObject(name="Business Center", icon="fa-building"),
-        DemoObject(name="High-Speed Internet", icon="fa-wifi"),
-    ]
-    
-    # Create demo gallery
-    demo_gallery = [
-        DemoObject(image=DemoObject(url="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&auto=format&fit=crop")),
-        DemoObject(image=DemoObject(url="https://images.unsplash.com/photo-1502672260066-6bc35f0a9e7c?w=800&auto=format&fit=crop")),
-        DemoObject(image=DemoObject(url="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&auto=format&fit=crop")),
-        DemoObject(image=DemoObject(url="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&auto=format&fit=crop")),
-    ]
-    
-    # Create demo property
-    demo_property = DemoObject(
-        name="Marina Heights",
-        developer=demo_developer,
-        location="Dubai Marina",
-        bedrooms=2,
-        size=1450,
-        price=2450000,
-        description="Experience luxury living at its finest in this stunning 2-bedroom apartment located in the heart of Dubai Marina. Featuring breathtaking views, premium finishes, and world-class amenities.",
-        image=DemoObject(url="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&auto=format&fit=crop"),
-        video_url="https://www.youtube.com/embed/dQw4w9WgXcQ",
-        map_embed_url="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3623.9997!2d55.136169!3d25.080373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f6d8e12345!2sDubai%20Marina!5e0!3m2!1sen!2sae!4v1634071196899!5m2!1sen!2sae",
-        unit_details=DemoObject(_items=demo_units),
-        amenities=DemoObject(_items=demo_amenities),
-        gallery=DemoObject(_items=demo_gallery),
-    )
-    
-    # Handle demo contact form submission
-    if request.method == 'POST':
-        messages.success(request, 'Thank you for your inquiry! We will contact you soon.')
-        return redirect('main:properties_detail')
+    # Pagination (apply after filters)
+    paginator = Paginator(project, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
-        'property': demo_property,
-        'page_title': 'Marina Heights - Property Details',
-        'meta_description': 'Experience luxury living at its finest in this stunning 2-bedroom apartment',
+        'project': page_obj,
+        'logo': logo,
+        'types': PropertyType.objects.all().exclude(name__iexact='Unknown Type'),
+        'developers': Developer.objects.all(),
+        'location': City.objects.all().exclude(name__iexact='Unnamed City'),
+        'status': SalesStatus.objects.all(),
+        'selected_price': price_filter,
     }
-    return render(request, 'main/properties_detail.html', context)
+    return render(request, 'main/properties.html', context)
+
+def properties_detail(request, slug):
+
+    # Fetch property along with related data
+    property_obj = ( Property.objects.select_related(
+            "developer", "city", "district",
+            "property_type", "property_status",
+            "sales_status"
+        )
+        .prefetch_related(
+            "property_images",
+            "facilities",
+            Prefetch("grouped_apartments", queryset=GroupedApartment.objects.all())
+        )
+        .filter(slug=slug)
+        .first()
+    )
+    if property_obj.address:
+        try:
+            lat, lng = [coord.strip() for coord in property_obj.address.split(',')]
+        except Exception:
+            lat, lng = None, None
+    else:
+        lat, lng = None, None
+    
+
+    if not property_obj:
+        return render(request, "404.html", status=404)
+
+   
+
+    # Clean description text (strip HTML)
+    text = strip_tags(property_obj.description or "")
+    text = text.replace("&nbsp;", "").replace("\xa0", " ")
+    property_obj.description = text
+
+
+    # Handle contact form submission
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        message = request.POST.get("message")
+
+        messages.success(request, "Thank you! We will contact you soon.")
+        return redirect("main:properties_detail", slug=slug)
+
+    
+    context = {
+        "property": property_obj,
+        "page_title": f"{property_obj.title} - Property Details",
+        "meta_description": property_obj.description[:160] if property_obj.description else "",
+        "images": property_obj.property_images.all(),
+        "units": property_obj.grouped_apartments.all(),
+        "facilities": property_obj.facilities.all(),
+        'lat': lat,
+        'lng': lng,
+    }
+
+    return render(request, "main/properties_detail.html", context)
