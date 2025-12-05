@@ -1,13 +1,12 @@
-# offplanuae/views.py
+# main/views.py - COMPLETE FIXED VERSION
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count, Min, Max, Avg,Q
 from django.http import JsonResponse
 from .models import *
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils.html import strip_tags
-
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 def home(request):
     """Render the home page with complete filtering"""
@@ -28,10 +27,8 @@ def home(request):
     
     # Apply search filter
     if search_query:
-        from django.db.models import Q
         filtered_properties = filtered_properties.filter(
             Q(title__icontains=search_query) |
-            Q(description__icontains=search_query) |
             Q(developer__name__icontains=search_query) |
             Q(city__name__icontains=search_query) |
             Q(district__name__icontains=search_query)
@@ -55,7 +52,7 @@ def home(request):
     
     # Apply developer filter
     if developer_filter:
-        filtered_properties = filtered_properties.filter(developer_id=developer_filter)
+        filtered_properties = filtered_properties.filter(developer__name__icontains=developer_filter)
     
     # Apply type filter
     if type_filter:
@@ -72,9 +69,54 @@ def home(request):
     # Get count after filtering
     filtered_count = filtered_properties.count()
     
+    # Check if any filters are applied
+    has_filters = any([search_query, price_filter, developer_filter, type_filter, location_filter, status_filter])
+    
     # Limit to 8 for display and order by price
     offplan = filtered_properties.order_by('-low_price')[:8]
     developer = Developer.objects.all()[:10]
+    
+    # ============================================
+    # Community Section Data
+    # ============================================
+    communities = []
+    districts = District.objects.filter(
+        properties__isnull=False
+    ).distinct().select_related('city')
+    
+    for district in districts:
+        district_properties = Property.objects.filter(district=district).order_by('low_price')
+        property_count = district_properties.count()
+        
+        if property_count > 0:
+            first_property = district_properties.first()
+            min_price = district_properties.aggregate(Min('low_price'))['low_price__min'] or 0
+            max_price = district_properties.aggregate(Max('low_price'))['low_price__max'] or 0
+            avg_price = district_properties.aggregate(Avg('low_price'))['low_price__avg'] or 0
+            
+            communities.append({
+                'name': district.name,
+                'slug': district.id,
+                'city_name': district.city.name if district.city else 'UAE',
+                'city_slug': district.city.slug if district.city else 'all',
+                'property_count': property_count,
+                'first_property_cover': first_property.cover if first_property.cover else 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+                'min_price': min_price,
+                'max_price': max_price,
+                'avg_price': int(avg_price),
+            })
+    
+    communities = sorted(communities, key=lambda x: x['property_count'], reverse=True)[:8]
+    
+    cities_with_count = City.objects.filter(
+        districts__properties__isnull=False
+    ).exclude(
+        name__iexact='Unnamed City'
+    ).annotate(
+        district_count=Count('districts', distinct=True)
+    ).filter(district_count__gt=0).order_by('name')
+    
+    total_communities = len(communities)
     
     context = {
         'offplan': offplan,
@@ -84,16 +126,25 @@ def home(request):
         'location': City.objects.all().exclude(name__iexact='Unnamed City'),
         'status': SalesStatus.objects.all(),
         'selected_price': price_filter,
+        'selected_developer': developer_filter,
+        'selected_type': type_filter,
+        'selected_location': location_filter,
+        'selected_status': status_filter,
+        'search_query': search_query,
         'filtered_count': filtered_count,
         'total_count': total_count,
+        'has_filters': has_filters,
+        'communities': communities,
+        'cities_with_count': cities_with_count,
+        'total_communities': total_communities,
         'page_title': 'Home - Off Plan UAE',
         'meta_description': 'Discover premium off-plan properties in UAE',
     }
     return render(request, 'main/home.html', context)
+
 def about(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        # Save to database or send to email service
         messages.success(request, 'Thank you for subscribing!')
         return redirect('about')
     
@@ -102,9 +153,10 @@ def about(request):
         'meta_description': 'Learn about OffPlanUAE.ai - transforming property discovery in UAE with AI technology.',
     }
     return render(request, 'main/about.html', context)
+
+
 def blog(request):
     """Render the blog page with all blog posts"""
-    # Demo blog posts data
     blog_posts = [
         {
             'id': 1,
@@ -240,7 +292,6 @@ def blog(request):
 
 def blog_detail(request, blog_id):
     """Render individual blog post detail page"""
-    # Demo blog posts data (same as above)
     blog_posts = [
         {
             'id': 1,
@@ -366,19 +417,16 @@ def blog_detail(request, blog_id):
         },
     ]
     
-    # Find the blog post with matching ID
     blog_post = None
     for post in blog_posts:
         if post['id'] == blog_id:
             blog_post = post
             break
     
-    # If blog post not found, redirect to blog page
     if not blog_post:
         messages.error(request, 'Blog post not found.')
         return redirect('main:blog')
     
-    # Get related posts (exclude current post)
     related_posts = [post for post in blog_posts if post['id'] != blog_id][:3]
     
     context = {
@@ -402,7 +450,6 @@ def contact(request):
             subject = data.get('subject', '').strip()
             message = data.get('message', '').strip()
             
-            # Basic validation
             errors = {}
             if not name:
                 errors['name'] = 'Name is required'
@@ -421,30 +468,6 @@ def contact(request):
                     'message': 'Please fill all required fields',
                     'errors': errors
                 }, status=400)
-            
-            # Here you can add:
-            # 1. Save to database
-            # 2. Send email notification
-            # 3. Send to CRM
-            
-            # Example: Save to database (you'll need to create a Contact model)
-            # Contact.objects.create(
-            #     name=name,
-            #     email=email,
-            #     phone=phone,
-            #     subject=subject,
-            #     message=message
-            # )
-            
-            # Example: Send email
-            # from django.core.mail import send_mail
-            # send_mail(
-            #     f'New Contact Form: {subject}',
-            #     f'Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}',
-            #     'noreply@offplanuae.ai',
-            #     ['info@offplanuae.ai'],
-            #     fail_silently=False,
-            # )
             
             return JsonResponse({
                 'status': 'success',
@@ -466,15 +489,14 @@ def contact(request):
         'meta_description': 'Get in touch with Off Plan UAE for property inquiries',
     }
     return render(request, 'main/contact.html', context)
+
+
 def properties(request):
-    # Get all properties initially
     project = Property.objects.all()
     logo = Developer.objects.all()
     
-    # Get price filter from request
     price_filter = request.GET.get('price', '')
     
-    # Apply price filters
     if price_filter == 'under_500k':
         project = project.filter(low_price__lt=500000)
     elif price_filter == '500k_1m':
@@ -490,7 +512,6 @@ def properties(request):
     elif price_filter == 'above_5m':
         project = project.filter(low_price__gte=5000000)
     
-    # Pagination (apply after filters)
     paginator = Paginator(project, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -506,10 +527,9 @@ def properties(request):
     }
     return render(request, 'main/properties.html', context)
 
-def properties_detail(request, slug):
 
-    # Fetch property along with related data
-    property_obj = ( Property.objects.select_related(
+def properties_detail(request, slug):
+    property_obj = (Property.objects.select_related(
             "developer", "city", "district",
             "property_type", "property_status",
             "sales_status"
@@ -522,6 +542,7 @@ def properties_detail(request, slug):
         .filter(slug=slug)
         .first()
     )
+    
     if property_obj.address:
         try:
             lat, lng = [coord.strip() for coord in property_obj.address.split(',')]
@@ -530,28 +551,20 @@ def properties_detail(request, slug):
     else:
         lat, lng = None, None
     
-
     if not property_obj:
         return render(request, "404.html", status=404)
-
-   
-
-    # Clean description text (strip HTML)
+    
     text = strip_tags(property_obj.description or "")
     text = text.replace("&nbsp;", "").replace("\xa0", " ")
     property_obj.description = text
-
-
-    # Handle contact form submission
+    
     if request.method == "POST":
         name = request.POST.get("name")
         email = request.POST.get("email")
         phone = request.POST.get("phone")
         message = request.POST.get("message")
-
         messages.success(request, "Thank you! We will contact you soon.")
         return redirect("main:properties_detail", slug=slug)
-
     
     context = {
         "property": property_obj,
@@ -563,5 +576,75 @@ def properties_detail(request, slug):
         'lat': lat,
         'lng': lng,
     }
-
+    
     return render(request, "main/properties_detail.html", context)
+
+def community_properties(request, slug):
+    """Show all properties in a specific community (district)"""
+    district = get_object_or_404(District, id=slug)
+    
+    properties = Property.objects.filter(
+        district=district
+    ).select_related(
+        'developer', 'city', 'district', 
+        'property_type', 'property_status', 'sales_status'
+    ).prefetch_related('property_images')
+    
+    price_filter = request.GET.get('price', '')
+    developer_filter = request.GET.get('developer', '')
+    type_filter = request.GET.get('type', '')
+    status_filter = request.GET.get('status', '')
+    
+    if price_filter == 'under_500k':
+        properties = properties.filter(low_price__lt=500000)
+    elif price_filter == '500k_1m':
+        properties = properties.filter(low_price__gte=500000, low_price__lt=1000000)
+    elif price_filter == '1m_2m':
+        properties = properties.filter(low_price__gte=1000000, low_price__lt=2000000)
+    elif price_filter == '2m_3m':
+        properties = properties.filter(low_price__gte=2000000, low_price__lt=3000000)
+    elif price_filter == '3m_4m':
+        properties = properties.filter(low_price__gte=3000000, low_price__lt=4000000)
+    elif price_filter == '4m_5m':
+        properties = properties.filter(low_price__gte=4000000, low_price__lt=5000000)
+    elif price_filter == 'above_5m':
+        properties = properties.filter(low_price__gte=5000000)
+    
+    if developer_filter:
+        properties = properties.filter(developer_id=developer_filter)
+    
+    if type_filter:
+        properties = properties.filter(property_type_id=type_filter)
+    
+    if status_filter:
+        properties = properties.filter(sales_status_id=status_filter)
+    
+    total_count = properties.count()
+    min_price = properties.aggregate(Min('low_price'))['low_price__min'] or 0
+    avg_price = properties.aggregate(Avg('low_price'))['low_price__avg'] or 0
+    
+    paginator = Paginator(properties.order_by('-low_price'), 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'district': district,
+        'properties': page_obj,
+        'total_count': total_count,
+        'min_price': min_price,
+        'avg_price': int(avg_price),
+        'developers': Developer.objects.filter(
+            properties__district=district
+        ).distinct(),
+        'types': PropertyType.objects.filter(
+            properties__district=district
+        ).distinct().exclude(name__iexact='Unknown Type'),
+        'status': SalesStatus.objects.filter(
+            properties__district=district
+        ).distinct(),
+        'selected_price': price_filter,
+        'page_title': f'{district.name} - Properties',
+        'meta_description': f'Explore {total_count} properties in {district.name}, {district.city.name if district.city else "UAE"}',
+    }
+    
+    return render(request, 'main/community_properties.html', context)

@@ -349,16 +349,24 @@
         </a>
 
         <div style="max-width: 1000px;">
-            <!-- Developer Badge -->
+            <!-- Developer Badge
             <div style="display: inline-flex; align-items: center; gap: 0.75rem; background: white; padding: 0.5rem 1rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                 {% if property.developer.logo %}
                 <img src="{{ property.developer.logo }}" alt="{{ property.developer.name }}" style="height: 1.75rem; object-fit: contain;">
                 {% endif %}
                 <span style="font-size: 0.875rem; color: #64748b; font-weight: 500;">by {{ property.developer.name }}</span>
-            </div>
+            </div> -->
 
             <!-- Property Name -->
             <h1 style="font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 700; color: #1e293b; margin-bottom: 1.5rem; line-height: 1.1;">{{ property.title }}</h1>
+
+             <!-- Developer Badge -->
+            <div style="display: inline-flex; align-items: center; gap: 0.75rem; background: white; padding: 0.5rem 1rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                {% if property.developer.logo %}
+                <img src="{{ property.developer.logo }}" alt="{{ property.developer.name }}" style="height: 3rem; object-fit: contain;">
+                {% endif %}
+                <span style="font-size: 0.875rem; color: #64748b; font-weight: 500;">by {{ property.developer.name }}</span>
+            </div>
 
             <!-- Property Info -->
             <div style="display: flex; flex-wrap: wrap; gap: 1.75rem; color: #64748b; margin-bottom: 1.5rem; font-size: 1rem;">

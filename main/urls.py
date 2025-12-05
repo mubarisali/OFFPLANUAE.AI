@@ -12,5 +12,6 @@ urlpatterns = [
     path('properties/', views.properties, name='properties'),
     # path('properties_detail/', views.properties_detail, name='properties_detail'),
     path('property/<slug:slug>/', views.properties_detail, name='properties_detail'),
+     path('community/<int:slug>/', views.community_properties, name='community_properties'),
 
 ]   
