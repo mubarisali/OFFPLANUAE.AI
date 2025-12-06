@@ -13,7 +13,7 @@ admin.site.register(Developer)
 
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
-    list_display = ['title', 'slug','description']
+    list_display = ['title', 'slug','district']
     list_filter = ['title','created_at']
     search_fields = ['title', 'location', 'description']
     prepopulated_fields = {'slug': ('title',)}
@@ -43,3 +43,11 @@ class NewsletterAdmin(admin.ModelAdmin):
     search_fields = ['email']
     list_editable = ['is_active']
     date_hierarchy = 'subscribed_at'
+
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin):
+    list_display= ['name','slug']
+
+@admin.register(District)
+class DistrictAdmin(admin.ModelAdmin):
+    list_display= ['name']

@@ -1,31 +1,39 @@
 # main/views.py - COMPLETE FIXED VERSION
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Prefetch, Count, Min, Max, Avg,Q
+from django.db.models import Prefetch, Count, Min, Max, Avg, Q, FloatField
 from django.http import JsonResponse
 from .models import *
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils.html import strip_tags
+from django.db.models.functions import Coalesce
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count, Min, Max, Avg, Q
+
 def home(request):
-    """Render the home page with complete filtering"""
-    # Get all properties initially
+    """Render the home page with complete filtering + city/district tabs"""
+
+    # ---------------------------
+    # EXISTING PROPERTY FILTERING
+    # ---------------------------
     all_properties = Property.objects.all()
     total_count = all_properties.count()
-    
-    # Start with all properties for filtering
+
     filtered_properties = all_properties
-    
-    # Get filter parameters from request
+
     search_query = request.GET.get('search', '').strip()
     price_filter = request.GET.get('price', '')
     developer_filter = request.GET.get('developer', '')
     type_filter = request.GET.get('type', '')
     location_filter = request.GET.get('location', '')
     status_filter = request.GET.get('status', '')
-    
-    # Apply search filter
+
+    has_filters = any([
+        search_query, price_filter, developer_filter,
+        type_filter, location_filter, status_filter
+    ])
+
     if search_query:
         filtered_properties = filtered_properties.filter(
             Q(title__icontains=search_query) |
@@ -33,8 +41,8 @@ def home(request):
             Q(city__name__icontains=search_query) |
             Q(district__name__icontains=search_query)
         )
-    
-    # Apply price filter
+
+    # PRICE FILTERS
     if price_filter == 'under_500k':
         filtered_properties = filtered_properties.filter(low_price__lt=500000)
     elif price_filter == '500k_1m':
@@ -49,76 +57,59 @@ def home(request):
         filtered_properties = filtered_properties.filter(low_price__gte=4000000, low_price__lt=5000000)
     elif price_filter == 'above_5m':
         filtered_properties = filtered_properties.filter(low_price__gte=5000000)
-    
-    # Apply developer filter
+
+    # OTHER FILTERS
     if developer_filter:
         filtered_properties = filtered_properties.filter(developer__name__icontains=developer_filter)
-    
-    # Apply type filter
+
     if type_filter:
         filtered_properties = filtered_properties.filter(property_type_id=type_filter)
-    
-    # Apply location filter
+
     if location_filter:
         filtered_properties = filtered_properties.filter(city_id=location_filter)
-    
-    # Apply status filter
+
     if status_filter:
         filtered_properties = filtered_properties.filter(sales_status_id=status_filter)
-    
-    # Get count after filtering
+
     filtered_count = filtered_properties.count()
-    
-    # Check if any filters are applied
-    has_filters = any([search_query, price_filter, developer_filter, type_filter, location_filter, status_filter])
-    
-    # Limit to 8 for display and order by price
+    has_more_properties = filtered_count > 8
+
     offplan = filtered_properties.order_by('-low_price')[:8]
     developer = Developer.objects.all()[:10]
-    
-    # ============================================
-    # Community Section Data
-    # ============================================
-    communities = []
-    districts = District.objects.filter(
-        properties__isnull=False
-    ).distinct().select_related('city')
-    
-    for district in districts:
-        district_properties = Property.objects.filter(district=district).order_by('low_price')
-        property_count = district_properties.count()
-        
-        if property_count > 0:
-            first_property = district_properties.first()
-            min_price = district_properties.aggregate(Min('low_price'))['low_price__min'] or 0
-            max_price = district_properties.aggregate(Max('low_price'))['low_price__max'] or 0
-            avg_price = district_properties.aggregate(Avg('low_price'))['low_price__avg'] or 0
-            
-            communities.append({
-                'name': district.name,
-                'slug': district.id,
-                'city_name': district.city.name if district.city else 'UAE',
-                'city_slug': district.city.slug if district.city else 'all',
-                'property_count': property_count,
-                'first_property_cover': first_property.cover if first_property.cover else 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
-                'min_price': min_price,
-                'max_price': max_price,
-                'avg_price': int(avg_price),
-            })
-    
-    communities = sorted(communities, key=lambda x: x['property_count'], reverse=True)[:8]
-    
-    cities_with_count = City.objects.filter(
-        districts__properties__isnull=False
-    ).exclude(
-        name__iexact='Unnamed City'
-    ).annotate(
-        district_count=Count('districts', distinct=True)
-    ).filter(district_count__gt=0).order_by('name')
-    
-    total_communities = len(communities)
-    
+
+    # --------------------------------------
+    # NEW: CITY & DISTRICT TAB FUNCTIONALITY
+    # --------------------------------------
+
+    cities = City.objects.all().order_by("name").exclude(name__iexact='Unnamed City')
+
+    # Get active city from GET parameter (tabs switch without JS)
+    active_city_slug = request.GET.get("city", None)
+
+    if active_city_slug:
+        active_city = City.objects.filter(slug=active_city_slug).first()
+    else:
+        active_city = cities.first()
+
+    # Districts with average price + property count
+    if active_city:
+        districts = (
+            active_city.districts.all()
+            .annotate(
+                property_count=Count('properties'),
+                avg_price=Coalesce(Avg('properties__low_price'), 0, output_field=FloatField())
+            )
+            .order_by("name")[:8]
+        )
+    else:
+        districts = District.objects.none()
+
+
+    # --------------------------------------
+    # CONTEXT
+    # --------------------------------------
     context = {
+        # FILTER SYSTEM
         'offplan': offplan,
         'developer': developer,
         'developers': Developer.objects.all(),
@@ -134,13 +125,116 @@ def home(request):
         'filtered_count': filtered_count,
         'total_count': total_count,
         'has_filters': has_filters,
-        'communities': communities,
-        'cities_with_count': cities_with_count,
-        'total_communities': total_communities,
+        'has_more_properties': has_more_properties,
+
+        # NEW - CITY / DISTRICTS TAB DATA
+        'cities': cities,
+        'active_city': active_city,
+        'districts': districts,
+
+        # SEO
         'page_title': 'Home - Off Plan UAE',
         'meta_description': 'Discover premium off-plan properties in UAE',
     }
+
     return render(request, 'main/home.html', context)
+
+
+# def home(request):
+#     """Render the home page with complete filtering"""
+#     # Get all properties initially
+#     all_properties = Property.objects.all()
+#     total_count = all_properties.count()
+    
+#     # Start with all properties for filtering
+#     filtered_properties = all_properties
+    
+#     # Get filter parameters from request
+#     search_query = request.GET.get('search', '').strip()
+#     price_filter = request.GET.get('price', '')
+#     developer_filter = request.GET.get('developer', '')
+#     type_filter = request.GET.get('type', '')
+#     location_filter = request.GET.get('location', '')
+#     status_filter = request.GET.get('status', '')
+    
+#     # Check if any filters are applied
+#     has_filters = any([search_query, price_filter, developer_filter, type_filter, location_filter, status_filter])
+    
+#     # Apply search filter
+#     if search_query:
+#         filtered_properties = filtered_properties.filter(
+#             Q(title__icontains=search_query) |
+#             Q(developer__name__icontains=search_query) |
+#             Q(city__name__icontains=search_query) |
+#             Q(district__name__icontains=search_query)
+#         )
+    
+#     # Apply price filter
+#     if price_filter == 'under_500k':
+#         filtered_properties = filtered_properties.filter(low_price__lt=500000)
+#     elif price_filter == '500k_1m':
+#         filtered_properties = filtered_properties.filter(low_price__gte=500000, low_price__lt=1000000)
+#     elif price_filter == '1m_2m':
+#         filtered_properties = filtered_properties.filter(low_price__gte=1000000, low_price__lt=2000000)
+#     elif price_filter == '2m_3m':
+#         filtered_properties = filtered_properties.filter(low_price__gte=2000000, low_price__lt=3000000)
+#     elif price_filter == '3m_4m':
+#         filtered_properties = filtered_properties.filter(low_price__gte=3000000, low_price__lt=4000000)
+#     elif price_filter == '4m_5m':
+#         filtered_properties = filtered_properties.filter(low_price__gte=4000000, low_price__lt=5000000)
+#     elif price_filter == 'above_5m':
+#         filtered_properties = filtered_properties.filter(low_price__gte=5000000)
+    
+#     # Apply developer filter
+#     if developer_filter:
+#         filtered_properties = filtered_properties.filter(developer__name__icontains=developer_filter)
+    
+#     # Apply type filter
+#     if type_filter:
+#         filtered_properties = filtered_properties.filter(property_type_id=type_filter)
+    
+#     # Apply location filter
+#     if location_filter:
+#         filtered_properties = filtered_properties.filter(city_id=location_filter)
+    
+#     # Apply status filter
+#     if status_filter:
+#         filtered_properties = filtered_properties.filter(sales_status_id=status_filter)
+    
+#     # Get count AFTER filtering but BEFORE limiting to 8
+#     filtered_count = filtered_properties.count()
+    
+#     # Check if there are more properties than the displayed 8
+#     has_more_properties = filtered_count > 8
+    
+#     # Limit to 8 for display and order by price
+#     offplan = filtered_properties.order_by('-low_price')[:8]
+#     developer = Developer.objects.all()[:10]
+    
+   
+    
+#     context = {
+#         'offplan': offplan,
+#         'developer': developer,
+#         'developers': Developer.objects.all(),
+#         'types': PropertyType.objects.all().exclude(name__iexact='Unknown Type'),
+#         'location': City.objects.all().exclude(name__iexact='Unnamed City'),
+#         'status': SalesStatus.objects.all(),
+#         'selected_price': price_filter,
+#         'selected_developer': developer_filter,
+#         'selected_type': type_filter,
+#         'selected_location': location_filter,
+#         'selected_status': status_filter,
+#         'search_query': search_query,
+#         'filtered_count': filtered_count,  # Count AFTER filtering, BEFORE [:8]
+#         'total_count': total_count,        # Total count WITHOUT any filters
+#         'has_filters': has_filters,        # Boolean to check if filters are active
+#         'has_more_properties': has_more_properties,  # NEW: Flag for "View More" button
+        
+#         'page_title': 'Home - Off Plan UAE',
+#         'meta_description': 'Discover premium off-plan properties in UAE',
+#     }
+#     return render(request, 'main/home.html', context)
 
 def about(request):
     if request.method == 'POST':
@@ -490,13 +584,28 @@ def contact(request):
     }
     return render(request, 'main/contact.html', context)
 
-
 def properties(request):
+    # Get all properties
     project = Property.objects.all()
-    logo = Developer.objects.all()
     
+    # Get all filter parameters
     price_filter = request.GET.get('price', '')
+    developer_filter = request.GET.get('developer', '')
+    type_filter = request.GET.get('type', '')
+    location_filter = request.GET.get('location', '')
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
     
+    # Apply search filter
+    if search_query:
+        project = project.filter(
+            Q(title__icontains=search_query) |
+            Q(developer__name__icontains=search_query) |
+            Q(city__name__icontains=search_query) |
+            Q(district__name__icontains=search_query)
+        )
+    
+    # Apply price filter
     if price_filter == 'under_500k':
         project = project.filter(low_price__lt=500000)
     elif price_filter == '500k_1m':
@@ -512,21 +621,42 @@ def properties(request):
     elif price_filter == 'above_5m':
         project = project.filter(low_price__gte=5000000)
     
+    # Apply developer filter
+    if developer_filter:
+        project = project.filter(developer__name=developer_filter)
+    
+    # Apply type filter
+    if type_filter:
+        project = project.filter(property_type__name=type_filter)
+    
+    # Apply location filter
+    if location_filter:
+        project = project.filter(city__name=location_filter)
+    
+    # Apply status filter
+    if status_filter:
+        project = project.filter(property_status__name=status_filter)
+    
+    # Pagination
     paginator = Paginator(project, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
     context = {
         'project': page_obj,
-        'logo': logo,
+        'logo': Developer.objects.all(),
         'types': PropertyType.objects.all().exclude(name__iexact='Unknown Type'),
         'developers': Developer.objects.all(),
         'location': City.objects.all().exclude(name__iexact='Unnamed City'),
         'status': SalesStatus.objects.all(),
         'selected_price': price_filter,
-    }
+        'selected_developer': developer_filter,
+        'selected_type': type_filter,
+        'selected_location': location_filter,
+        'selected_status': status_filter,
+        'search_query': search_query,
+    } 
     return render(request, 'main/properties.html', context)
-
 
 def properties_detail(request, slug):
     property_obj = (Property.objects.select_related(
@@ -648,3 +778,45 @@ def community_properties(request, slug):
     }
     
     return render(request, 'main/community_properties.html', context)
+    
+def all_communities(request):
+    # Get all cities with properties
+    cities = City.objects.filter(
+        property__isnull=False
+    ).distinct().order_by('name')
+    
+    # Get all communities (districts) with their statistics
+    communities = District.objects.annotate(
+        property_count=Count('property'),
+        avg_price=Avg('property__low_price'),
+        min_price=Min('property__low_price')
+    ).filter(
+        property_count__gt=0
+    ).select_related('city').prefetch_related('property_set')
+    
+    # Prepare community data with additional info
+    community_list = []
+    for community in communities:
+        first_property = community.property_set.first()
+        community_list.append({
+            'name': community.name,
+            'slug': community.slug,
+            'city_name': community.city.name if community.city else 'Unknown',
+            'city_slug': community.city.slug if community.city else 'unknown',
+            'property_count': community.property_count,
+            'avg_price': community.avg_price or 0,
+            'min_price': community.min_price or 0,
+            'first_property_cover': first_property.cover.url if first_property and first_property.cover else '',
+        })
+    
+    # Sort by property count descending by default
+    community_list.sort(key=lambda x: x['property_count'], reverse=True)
+    
+    context = {
+        'communities': community_list,
+        'cities': cities,
+        'total_communities': len(community_list),
+        'total_properties': Property.objects.count(),
+    }
+    
+    return render(request, 'main/all_communities.html', context)
