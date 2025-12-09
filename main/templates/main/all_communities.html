@@ -84,7 +84,7 @@
         font-size: 0.9rem;
         font-weight: 600;
         color: #475569;
-        cursor: pointer;
+        text-decoration: none;
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
@@ -152,6 +152,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 2rem;
+        margin-bottom: 3rem;
     }
 
     .community-card {
@@ -160,12 +161,8 @@
         overflow: hidden;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         transition: all 0.3s ease;
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    .community-card.hidden {
-        display: none;
+        display: flex;
+        flex-direction: column;
     }
 
     .community-card:hover {
@@ -238,6 +235,9 @@
 
     .community-content {
         padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
     }
 
     .community-stats {
@@ -245,12 +245,14 @@
         grid-template-columns: 1fr 1fr;
         gap: 1rem;
         margin-bottom: 1.5rem;
+        flex: 1;
     }
 
     .stat-item {
         display: flex;
         flex-direction: column;
         gap: 0.3rem;
+        text-align: center;
     }
 
     .stat-label {
@@ -284,6 +286,51 @@
 
     .view-properties-btn:hover {
         background: #2d4a6f;
+    }
+
+    /* Pagination */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        flex-wrap: wrap;
+    }
+
+    .pagination a, .pagination span {
+        padding: 0.75rem 1.25rem;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        color: #475569;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+        background: #c7b04c;
+        color: white;
+        border-color: #c7b04c;
+        transform: translateY(-2px);
+    }
+
+    .pagination .current {
+        background: #c7b04c;
+        color: white;
+        border-color: #c7b04c;
+    }
+
+    .pagination .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
     }
 
     /* Empty State */
@@ -330,6 +377,15 @@
             grid-template-columns: 1fr;
             gap: 1.5rem;
         }
+
+        .pagination {
+            gap: 0.25rem;
+        }
+
+        .pagination a, .pagination span {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+        }
     }
 </style>
 {% endblock %}
@@ -359,15 +415,17 @@
                 <h3>Filter by City</h3>
             </div>
             <div class="city-filters">
-                <button class="city-filter-btn active" data-city="all">
+                <a href="{% url 'main:all_communities' %}" 
+                   class="city-filter-btn {% if not selected_city %}active{% endif %}">
                     <i class="fas fa-globe"></i>
                     All Cities
-                </button>
+                </a>
                 {% for city in cities %}
-                <button class="city-filter-btn" data-city="{{ city.slug }}">
+                <a href="?city={{ city.slug }}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" 
+                   class="city-filter-btn {% if selected_city == city.slug %}active{% endif %}">
                     <i class="fas fa-map-marker-alt"></i>
                     {{ city.name }}
-                </button>
+                </a>
                 {% endfor %}
             </div>
         </div>
@@ -376,25 +434,27 @@
         <div class="stats-bar">
             <div class="stats-info">
                 <i class="fas fa-home"></i>
-                <span>Showing <strong id="displayCount">{{ total_communities }}</strong> communities</span>
+                <span>Showing <strong>{{ page_obj.paginator.count }}</strong> communities</span>
             </div>
-            <select class="sort-dropdown" id="sortDropdown">
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-                <option value="projects-desc">Most Projects</option>
-                <option value="projects-asc">Least Projects</option>
-                <option value="price-desc">Highest Price</option>
-                <option value="price-asc">Lowest Price</option>
-            </select>
+            <form method="get" action="">
+                {% if selected_city %}
+                <input type="hidden" name="city" value="{{ selected_city }}">
+                {% endif %}
+                <select class="sort-dropdown" name="sort" onchange="this.form.submit()">
+                    <option value="name-asc" {% if selected_sort == 'name-asc' %}selected{% endif %}>Name (A-Z)</option>
+                    <option value="name-desc" {% if selected_sort == 'name-desc' %}selected{% endif %}>Name (Z-A)</option>
+                    <option value="projects-desc" {% if selected_sort == 'projects-desc' %}selected{% endif %}>Most Projects</option>
+                    <option value="projects-asc" {% if selected_sort == 'projects-asc' %}selected{% endif %}>Least Projects</option>
+                    <option value="price-desc" {% if selected_sort == 'price-desc' %}selected{% endif %}>Highest Price</option>
+                    <option value="price-asc" {% if selected_sort == 'price-asc' %}selected{% endif %}>Lowest Price</option>
+                </select>
+            </form>
         </div>
 
         <!-- Community Grid -->
-        <div class="all-communities-grid" id="communityGrid">
+        <div class="all-communities-grid">
             {% for community in communities %}
-            <div class="community-card" data-city="{{ community.city_slug }}" 
-                 data-name="{{ community.name }}" 
-                 data-projects="{{ community.property_count }}"
-                 data-price="{{ community.avg_price }}">
+            <div class="community-card">
                 <div class="community-image-wrapper">
                     <img src="{{ community.first_property_cover }}" 
                          alt="{{ community.name }}" 
@@ -419,7 +479,11 @@
                     <div class="community-stats">
                         <div class="stat-item">
                             <span class="stat-label">Average Price</span>
-                            <span class="stat-value">{{ community.avg_price|floatformat:0|intcomma }} AED</span>
+                            <span class="stat-value"> {% if community.avg_price %}
+                                    {{ community.avg_price|floatformat:0|intcomma }} AED
+                                {% else %}
+                                    Ask Price
+                                {% endif %}</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Total Projects</span>
@@ -427,7 +491,7 @@
                         </div>
                     </div>
                     
-                    <a href="#" class="view-properties-btn">
+                    <a href="{% url 'main:community_properties' slug=community.id %}" class="view-properties-btn">
                         View Properties <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -436,72 +500,63 @@
             <div class="no-communities">
                 <i class="fas fa-map-marked-alt"></i>
                 <h3>No Communities Found</h3>
-                <p>No communities available at the moment. Please check back later.</p>
+                <p>No communities available for the selected filters.</p>
             </div>
             {% endfor %}
         </div>
 
+        <!-- Pagination -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-wrapper">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li>
+                    <a href="?page=1{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">
+                        <i class="fas fa-angle-double-left"></i> First
+                    </a>
+                </li>
+                <li>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                </li>
+                {% else %}
+                <li><span class="disabled"><i class="fas fa-angle-double-left"></i> First</span></li>
+                <li><span class="disabled"><i class="fas fa-chevron-left"></i> Previous</span></li>
+                {% endif %}
+
+                <!-- Page Numbers -->
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li><span class="current">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li>
+                            <a href="?page={{ num }}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li>
+                    <a href="?page={{ page_obj.next_page_number }}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if selected_city %}&city={{ selected_city }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">
+                        Last <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li><span class="disabled">Next <i class="fas fa-chevron-right"></i></span></li>
+                <li><span class="disabled">Last <i class="fas fa-angle-double-right"></i></span></li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+
     </div>
 </section>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const filterButtons = document.querySelectorAll('.city-filter-btn');
-    const communityCards = document.querySelectorAll('.community-card');
-    const displayCount = document.getElementById('displayCount');
-    const sortDropdown = document.getElementById('sortDropdown');
-
-    // Filter functionality
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Update active state
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-
-            const selectedCity = this.getAttribute('data-city');
-            let visibleCount = 0;
-
-            // Filter cards
-            communityCards.forEach(card => {
-                if (selectedCity === 'all' || card.getAttribute('data-city') === selectedCity) {
-                    card.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-
-            // Update count
-            displayCount.textContent = visibleCount;
-        });
-    });
-
-    // Sort functionality
-    sortDropdown.addEventListener('change', function() {
-        const sortValue = this.value;
-        const grid = document.getElementById('communityGrid');
-        const cardsArray = Array.from(communityCards);
-
-        cardsArray.sort((a, b) => {
-            switch(sortValue) {
-                case 'name-asc':
-                    return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
-                case 'name-desc':
-                    return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
-                case 'projects-desc':
-                    return parseInt(b.getAttribute('data-projects')) - parseInt(a.getAttribute('data-projects'));
-                case 'projects-asc':
-                    return parseInt(a.getAttribute('data-projects')) - parseInt(b.getAttribute('data-projects'));
-                case 'price-desc':
-                    return parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price'));
-                case 'price-asc':
-                    return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price'));
-            }
-        });
-
-        // Re-append cards in sorted order
-        cardsArray.forEach(card => grid.appendChild(card));
-    });
-});
-</script>
 {% endblock %}

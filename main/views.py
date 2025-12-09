@@ -10,6 +10,7 @@ from django.utils.html import strip_tags
 from django.db.models.functions import Coalesce
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Min, Max, Avg, Q
+import re
 
 def home(request):
     """Render the home page with complete filtering + city/district tabs"""
@@ -249,288 +250,80 @@ def about(request):
     return render(request, 'main/about.html', context)
 
 
+
+def about(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        messages.success(request, 'Thank you for subscribing!')
+        return redirect('about')
+    
+    context = {
+        'page_title': 'About Us - OffPlanUAE.ai',
+        'meta_description': 'Learn about OffPlanUAE.ai - transforming property discovery in UAE with AI technology.',
+    }
+    return render(request, 'main/about.html', context)
+
 def blog(request):
-    """Render the blog page with all blog posts"""
-    blog_posts = [
-        {
-            'id': 1,
-            'title': 'Top 10 Off-Plan Developments in Dubai 2025',
-            'excerpt': 'Explore the most promising off-plan projects launching this year in Dubai\'s thriving real estate market. Discover exclusive opportunities.',
-            'date': 'Nov 20, 2025',
-            'author': 'Sarah Ahmed',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Dubai's real estate market continues to flourish with groundbreaking off-plan developments that redefine luxury living. In this comprehensive guide, we explore the top 10 projects that are set to transform the emirate's skyline in 2025.</p>
-                
-                <h3>1. Palm Residences - Nakheel</h3>
-                <p>Located on the iconic Palm Jumeirah, this development offers unparalleled beachfront living with world-class amenities and stunning Arabian Gulf views.</p>
-                
-                <h3>2. Downtown Villas - Damac Properties</h3>
-                <p>Experience urban sophistication in the heart of Downtown Dubai with these premium villas featuring contemporary design and smart home technology.</p>
-                
-                <h3>3. Marina Heights - Emaar Properties</h3>
-                <p>Rising high in Dubai Marina, these luxury apartments offer breathtaking views and direct access to the finest dining and entertainment venues.</p>
-                
-                <p>Each of these developments represents the pinnacle of modern architecture and lifestyle convenience, making them excellent investment opportunities for both end-users and investors.</p>
-            '''
-        },
-        {
-            'id': 2,
-            'title': 'How AI is Transforming Property Investment',
-            'excerpt': 'Discover how artificial intelligence is revolutionizing the way investors find and evaluate real estate opportunities in the UAE market.',
-            'date': 'Nov 18, 2025',
-            'author': 'Michael Johnson',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Artificial Intelligence is reshaping the real estate industry, bringing unprecedented efficiency and insights to property investment decisions.</p>
-                
-                <h3>Predictive Analytics</h3>
-                <p>AI algorithms analyze vast amounts of market data to predict price trends, helping investors make informed decisions about when and where to invest.</p>
-                
-                <h3>Property Valuation</h3>
-                <p>Machine learning models can accurately assess property values by considering multiple factors including location, amenities, market trends, and historical data.</p>
-                
-                <h3>Personalized Recommendations</h3>
-                <p>AI-powered platforms like OffPlanUAE.ai can match investors with properties that perfectly align with their investment goals and preferences.</p>
-            '''
-        },
-        {
-            'id': 3,
-            'title': 'Understanding UAE Real Estate Laws',
-            'excerpt': 'A comprehensive guide to navigating property ownership regulations and legal requirements in the United Arab Emirates.',
-            'date': 'Nov 15, 2025',
-            'author': 'Fatima Al-Mansoori',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Understanding the legal framework governing real estate in the UAE is crucial for any investor or homebuyer looking to enter this dynamic market.</p>
-                
-                <h3>Freehold vs Leasehold</h3>
-                <p>Learn the difference between freehold areas where foreigners can own property outright and leasehold areas with long-term lease agreements.</p>
-                
-                <h3>Registration Process</h3>
-                <p>All property transactions must be registered with the Dubai Land Department or relevant authority to ensure legal ownership.</p>
-                
-                <h3>RERA Regulations</h3>
-                <p>The Real Estate Regulatory Agency (RERA) oversees all real estate activities, protecting both buyers and sellers in transactions.</p>
-            '''
-        },
-        {
-            'id': 4,
-            'title': 'Investment Tips for First-Time Buyers',
-            'excerpt': 'Essential advice and strategies for those entering the UAE property market for the first time.',
-            'date': 'Nov 12, 2025',
-            'author': 'John Smith',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Entering the real estate market for the first time can be overwhelming. Here are key tips to help you make smart investment decisions.</p>
-                
-                <h3>Set a Realistic Budget</h3>
-                <p>Calculate your budget including down payment, monthly installments, maintenance fees, and additional costs like registration and agency fees.</p>
-                
-                <h3>Location is Key</h3>
-                <p>Choose locations with strong growth potential, good infrastructure, and proximity to key amenities like schools, hospitals, and transportation.</p>
-                
-                <h3>Research the Developer</h3>
-                <p>Invest with reputable developers who have a proven track record of delivering quality projects on time.</p>
-            '''
-        },
-        {
-            'id': 5,
-            'title': 'Abu Dhabi\'s Emerging Property Hotspots',
-            'excerpt': 'Explore the up-and-coming areas in Abu Dhabi that offer excellent investment potential and quality of life.',
-            'date': 'Nov 10, 2025',
-            'author': 'Ahmed Hassan',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Abu Dhabi is experiencing rapid development with several emerging neighborhoods becoming prime investment destinations.</p>
-                
-                <h3>Yas Island</h3>
-                <p>Home to world-class entertainment and leisure facilities, Yas Island continues to attract investors with its diverse residential offerings.</p>
-                
-                <h3>Saadiyat Island</h3>
-                <p>Known as the cultural district of Abu Dhabi, Saadiyat Island offers luxury living combined with art, culture, and natural beauty.</p>
-                
-                <h3>Reem Island</h3>
-                <p>This modern development offers a perfect blend of residential, commercial, and recreational facilities with stunning waterfront views.</p>
-            '''
-        },
-        {
-            'id': 6,
-            'title': 'Financing Your Off-Plan Property Purchase',
-            'excerpt': 'Understanding mortgage options, payment plans, and financial strategies for off-plan property investments.',
-            'date': 'Nov 8, 2025',
-            'author': 'Lisa Chen',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Financing an off-plan property requires careful planning and understanding of available options to make the most of your investment.</p>
-                
-                <h3>Developer Payment Plans</h3>
-                <p>Many developers offer flexible payment plans allowing you to pay in installments during the construction period, typically with minimal or no interest.</p>
-                
-                <h3>Mortgage Options</h3>
-                <p>UAE banks offer competitive mortgage rates for off-plan properties, usually requiring 20-25% down payment for expatriates.</p>
-                
-                <h3>Investment Returns</h3>
-                <p>Off-plan properties often offer better ROI compared to ready properties, with potential for capital appreciation and rental income.</p>
-            '''
-        },
-    ]
+    """Render the blog page with all blog posts from database"""
+    # Get all blog posts from database, ordered by published date
+    blog_posts = BlogPost.objects.all().order_by('-published_at')
+    
+    # Pagination - 12 posts per page
+    paginator = Paginator(blog_posts, 6)
+    page_number = request.GET.get('page', 1)
+    
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
     
     context = {
         'page_title': 'Blog - Off Plan UAE',
         'meta_description': 'Latest news and insights about UAE real estate',
-        'blog_posts': blog_posts
+        'blog_posts': page_obj,
+        'page_obj': page_obj,
     }
     return render(request, 'main/blog.html', context)
 
-
 def blog_detail(request, blog_id):
-    """Render individual blog post detail page"""
-    blog_posts = [
-        {
-            'id': 1,
-            'title': 'Top 10 Off-Plan Developments in Dubai 2025',
-            'excerpt': 'Explore the most promising off-plan projects launching this year in Dubai\'s thriving real estate market. Discover exclusive opportunities.',
-            'date': 'Nov 20, 2025',
-            'author': 'Sarah Ahmed',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Dubai's real estate market continues to flourish with groundbreaking off-plan developments that redefine luxury living. In this comprehensive guide, we explore the top 10 projects that are set to transform the emirate's skyline in 2025.</p>
-                
-                <h3>1. Palm Residences - Nakheel</h3>
-                <p>Located on the iconic Palm Jumeirah, this development offers unparalleled beachfront living with world-class amenities and stunning Arabian Gulf views.</p>
-                
-                <h3>2. Downtown Villas - Damac Properties</h3>
-                <p>Experience urban sophistication in the heart of Downtown Dubai with these premium villas featuring contemporary design and smart home technology.</p>
-                
-                <h3>3. Marina Heights - Emaar Properties</h3>
-                <p>Rising high in Dubai Marina, these luxury apartments offer breathtaking views and direct access to the finest dining and entertainment venues.</p>
-                
-                <p>Each of these developments represents the pinnacle of modern architecture and lifestyle convenience, making them excellent investment opportunities for both end-users and investors.</p>
-            '''
-        },
-        {
-            'id': 2,
-            'title': 'How AI is Transforming Property Investment',
-            'excerpt': 'Discover how artificial intelligence is revolutionizing the way investors find and evaluate real estate opportunities in the UAE market.',
-            'date': 'Nov 18, 2025',
-            'author': 'Michael Johnson',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Artificial Intelligence is reshaping the real estate industry, bringing unprecedented efficiency and insights to property investment decisions.</p>
-                
-                <h3>Predictive Analytics</h3>
-                <p>AI algorithms analyze vast amounts of market data to predict price trends, helping investors make informed decisions about when and where to invest.</p>
-                
-                <h3>Property Valuation</h3>
-                <p>Machine learning models can accurately assess property values by considering multiple factors including location, amenities, market trends, and historical data.</p>
-                
-                <h3>Personalized Recommendations</h3>
-                <p>AI-powered platforms like OffPlanUAE.ai can match investors with properties that perfectly align with their investment goals and preferences.</p>
-            '''
-        },
-        {
-            'id': 3,
-            'title': 'Understanding UAE Real Estate Laws',
-            'excerpt': 'A comprehensive guide to navigating property ownership regulations and legal requirements in the United Arab Emirates.',
-            'date': 'Nov 15, 2025',
-            'author': 'Fatima Al-Mansoori',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Understanding the legal framework governing real estate in the UAE is crucial for any investor or homebuyer looking to enter this dynamic market.</p>
-                
-                <h3>Freehold vs Leasehold</h3>
-                <p>Learn the difference between freehold areas where foreigners can own property outright and leasehold areas with long-term lease agreements.</p>
-                
-                <h3>Registration Process</h3>
-                <p>All property transactions must be registered with the Dubai Land Department or relevant authority to ensure legal ownership.</p>
-                
-                <h3>RERA Regulations</h3>
-                <p>The Real Estate Regulatory Agency (RERA) oversees all real estate activities, protecting both buyers and sellers in transactions.</p>
-            '''
-        },
-        {
-            'id': 4,
-            'title': 'Investment Tips for First-Time Buyers',
-            'excerpt': 'Essential advice and strategies for those entering the UAE property market for the first time.',
-            'date': 'Nov 12, 2025',
-            'author': 'John Smith',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Entering the real estate market for the first time can be overwhelming. Here are key tips to help you make smart investment decisions.</p>
-                
-                <h3>Set a Realistic Budget</h3>
-                <p>Calculate your budget including down payment, monthly installments, maintenance fees, and additional costs like registration and agency fees.</p>
-                
-                <h3>Location is Key</h3>
-                <p>Choose locations with strong growth potential, good infrastructure, and proximity to key amenities like schools, hospitals, and transportation.</p>
-                
-                <h3>Research the Developer</h3>
-                <p>Invest with reputable developers who have a proven track record of delivering quality projects on time.</p>
-            '''
-        },
-        {
-            'id': 5,
-            'title': 'Abu Dhabi\'s Emerging Property Hotspots',
-            'excerpt': 'Explore the up-and-coming areas in Abu Dhabi that offer excellent investment potential and quality of life.',
-            'date': 'Nov 10, 2025',
-            'author': 'Ahmed Hassan',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Abu Dhabi is experiencing rapid development with several emerging neighborhoods becoming prime investment destinations.</p>
-                
-                <h3>Yas Island</h3>
-                <p>Home to world-class entertainment and leisure facilities, Yas Island continues to attract investors with its diverse residential offerings.</p>
-                
-                <h3>Saadiyat Island</h3>
-                <p>Known as the cultural district of Abu Dhabi, Saadiyat Island offers luxury living combined with art, culture, and natural beauty.</p>
-                
-                <h3>Reem Island</h3>
-                <p>This modern development offers a perfect blend of residential, commercial, and recreational facilities with stunning waterfront views.</p>
-            '''
-        },
-        {
-            'id': 6,
-            'title': 'Financing Your Off-Plan Property Purchase',
-            'excerpt': 'Understanding mortgage options, payment plans, and financial strategies for off-plan property investments.',
-            'date': 'Nov 8, 2025',
-            'author': 'Lisa Chen',
-            'image': 'img/hero.avif',
-            'content': '''
-                <p>Financing an off-plan property requires careful planning and understanding of available options to make the most of your investment.</p>
-                
-                <h3>Developer Payment Plans</h3>
-                <p>Many developers offer flexible payment plans allowing you to pay in installments during the construction period, typically with minimal or no interest.</p>
-                
-                <h3>Mortgage Options</h3>
-                <p>UAE banks offer competitive mortgage rates for off-plan properties, usually requiring 20-25% down payment for expatriates.</p>
-                
-                <h3>Investment Returns</h3>
-                <p>Off-plan properties often offer better ROI compared to ready properties, with potential for capital appreciation and rental income.</p>
-            '''
-        },
-    ]
+    """Render individual blog post detail page from database"""
+    # Get the blog post or return 404
+    blog_post = get_object_or_404(BlogPost, id=blog_id)
     
-    blog_post = None
-    for post in blog_posts:
-        if post['id'] == blog_id:
-            blog_post = post
-            break
+    # Increment view count
+    blog_post.views += 1
+    blog_post.save(update_fields=['views'])
     
-    if not blog_post:
-        messages.error(request, 'Blog post not found.')
-        return redirect('main:blog')
+    # Get related posts (excluding current post, limited to 3)
+    related_posts = BlogPost.objects.exclude(id=blog_id).order_by('-published_at')[:3]
     
-    related_posts = [post for post in blog_posts if post['id'] != blog_id][:3]
+    # Handle contact form submission from sidebar
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        message = request.POST.get('message')
+        
+        if name and email and phone and message:
+            # Save contact submission
+            ContactSubmission.objects.create(
+                name=name,
+                email=email,
+                phone=phone,
+                message=f"Blog Contact Form - {blog_post.title}\n\n{message}"
+            )
+            messages.success(request, 'Thank you for contacting us! We will get back to you within 24 hours.')
+            return redirect('main:blog_detail', blog_id=blog_id)
     
     context = {
-        'page_title': f'{blog_post["title"]} - Blog',
-        'meta_description': blog_post['excerpt'],
+        'page_title': f'{blog_post.title} - Blog',
+        'meta_description': blog_post.excerpt if blog_post.excerpt else strip_tags(blog_post.content)[:160],
         'blog_post': blog_post,
         'related_posts': related_posts,
     }
     return render(request, 'main/blog_detail.html', context)
-
 
 @csrf_exempt
 def contact(request):
@@ -584,19 +377,126 @@ def contact(request):
     }
     return render(request, 'main/contact.html', context)
 
+def clean_description(text):
+    if not text:
+        return ""
+
+    # Remove HTML tags
+    text = strip_tags(text)
+
+    # Remove CSS property-like junk inside text
+    text = re.sub(r"[a-zA-Z\-]+:\s*[^;]+;", "", text)
+
+    # Remove leftover symbols, brackets, and extra spaces
+    text = re.sub(r"[<>]", "", text)
+    text = text.replace("&nbsp;", " ").replace("\xa0", " ")
+
+    # Normalize spaces
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
+
+# def properties(request):
+#     # Get all properties
+#     project = Property.objects.all()
+    
+#     # Get all filter parameters
+#     price_filter = request.GET.get('price', '')
+#     developer_filter = request.GET.get('developer', '')
+#     type_filter = request.GET.get('type', '')
+#     location_filter = request.GET.get('location', '')
+#     status_filter = request.GET.get('status', '')
+#     search_query = request.GET.get('search', '')
+    
+#     # Apply search filter
+#     if search_query:
+#         project = project.filter(
+#             Q(title__icontains=search_query) |
+#             Q(developer__name__icontains=search_query) |
+#             Q(city__name__icontains=search_query) |
+#             Q(district__name__icontains=search_query)
+#         )
+    
+#     # Apply price filter
+#     if price_filter == 'under_500k':
+#         project = project.filter(low_price__lt=500000)
+#     elif price_filter == '500k_1m':
+#         project = project.filter(low_price__gte=500000, low_price__lt=1000000)
+#     elif price_filter == '1m_2m':
+#         project = project.filter(low_price__gte=1000000, low_price__lt=2000000)
+#     elif price_filter == '2m_3m':
+#         project = project.filter(low_price__gte=2000000, low_price__lt=3000000)
+#     elif price_filter == '3m_4m':
+#         project = project.filter(low_price__gte=3000000, low_price__lt=4000000)
+#     elif price_filter == '4m_5m':
+#         project = project.filter(low_price__gte=4000000, low_price__lt=5000000)
+#     elif price_filter == 'above_5m':
+#         project = project.filter(low_price__gte=5000000)
+    
+#     # Apply developer filter
+#     if developer_filter:
+#         project = project.filter(developer__name=developer_filter)
+    
+#     # Apply type filter
+#     if type_filter:
+#         project = project.filter(property_type__name=type_filter)
+    
+#     # Apply location filter
+#     if location_filter:
+#         project = project.filter(city__name=location_filter)
+    
+#     # Apply status filter
+#     if status_filter:
+#         project = project.filter(property_status__name=status_filter)
+    
+    
+    
+#     # Pagination
+#     paginator = Paginator(project, 12)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+    
+#     context = {
+#         'project': page_obj,
+#         'logo': Developer.objects.all(),
+#         'types': PropertyType.objects.all().exclude(name__iexact='Unknown Type'),
+#         'developers': Developer.objects.all(),
+#         'location': City.objects.all().exclude(name__iexact='Unnamed City'),
+#         'status': SalesStatus.objects.all(),
+#         'selected_price': price_filter,
+#         'selected_developer': developer_filter,
+#         'selected_type': type_filter,
+#         'selected_location': location_filter,
+#         'selected_status': status_filter,
+#         'search_query': search_query,
+#         'footer_property_types': GroupedApartment.objects.all().exclude(unit_type__iexact='Unknown Type'),
+#     } 
+#     return render(request, 'main/properties.html', context)
+
+
+
+from django.core.paginator import Paginator
+from django.db.models import Q
+
 def properties(request):
-    # Get all properties
+    # ---------------------------
+    # Base queryset
+    # ---------------------------
     project = Property.objects.all()
     
-    # Get all filter parameters
+    # ---------------------------
+    # Get filter parameters
+    # ---------------------------
     price_filter = request.GET.get('price', '')
     developer_filter = request.GET.get('developer', '')
-    type_filter = request.GET.get('type', '')
+    type_filter = request.GET.get('type', '')  # From footer links
     location_filter = request.GET.get('location', '')
     status_filter = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
     
+    # ---------------------------
     # Apply search filter
+    # ---------------------------
     if search_query:
         project = project.filter(
             Q(title__icontains=search_query) |
@@ -605,7 +505,9 @@ def properties(request):
             Q(district__name__icontains=search_query)
         )
     
+    # ---------------------------
     # Apply price filter
+    # ---------------------------
     if price_filter == 'under_500k':
         project = project.filter(low_price__lt=500000)
     elif price_filter == '500k_1m':
@@ -621,27 +523,43 @@ def properties(request):
     elif price_filter == 'above_5m':
         project = project.filter(low_price__gte=5000000)
     
+    # ---------------------------
     # Apply developer filter
+    # ---------------------------
     if developer_filter:
         project = project.filter(developer__name=developer_filter)
     
-    # Apply type filter
+    # ---------------------------
+    # Apply property type filter
+    # ---------------------------
     if type_filter:
-        project = project.filter(property_type__name=type_filter)
+        # Only filter if the type is one of the footer unit types
+        allowed_types = ['Villa', 'Apartment', 'Townhouse', 'Penthouse', 'Studio', 'Duplex']
+        if type_filter in allowed_types:
+            project = project.filter(grouped_apartments__unit_type__iexact=type_filter).distinct()
     
+    # ---------------------------
     # Apply location filter
+    # ---------------------------
     if location_filter:
         project = project.filter(city__name=location_filter)
     
+    # ---------------------------
     # Apply status filter
+    # ---------------------------
     if status_filter:
         project = project.filter(property_status__name=status_filter)
     
+    # ---------------------------
     # Pagination
+    # ---------------------------
     paginator = Paginator(project, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # ---------------------------
+    # Context
+    # ---------------------------
     context = {
         'project': page_obj,
         'logo': Developer.objects.all(),
@@ -655,11 +573,16 @@ def properties(request):
         'selected_location': location_filter,
         'selected_status': status_filter,
         'search_query': search_query,
+        'footer_property_types': GroupedApartment.objects.all().exclude(unit_type__iexact='Unknown Type'),
     } 
     return render(request, 'main/properties.html', context)
 
+from collections import defaultdict
+
 def properties_detail(request, slug):
-    property_obj = (Property.objects.select_related(
+
+    property_obj = (
+        Property.objects.select_related(
             "developer", "city", "district",
             "property_type", "property_status",
             "sales_status"
@@ -672,41 +595,81 @@ def properties_detail(request, slug):
         .filter(slug=slug)
         .first()
     )
-    
+
+    if not property_obj:
+        return render(request, "404.html", status=404)
+
+    # -------------------------------------
+    # Parse latitude, longitude
+    # -------------------------------------
     if property_obj.address:
         try:
-            lat, lng = [coord.strip() for coord in property_obj.address.split(',')]
-        except Exception:
+            lat, lng = [coord.strip() for coord in property_obj.address.split(",")]
+        except:
             lat, lng = None, None
     else:
         lat, lng = None, None
-    
-    if not property_obj:
-        return render(request, "404.html", status=404)
-    
-    text = strip_tags(property_obj.description or "")
-    text = text.replace("&nbsp;", "").replace("\xa0", " ")
+
+    # -------------------------------------
+    # CLEAN DESCRIPTION (no bleach)
+    # -------------------------------------
+    text = property_obj.description or ""
+
+    # Remove style="..."
+    text = re.sub(r'style="[^"]*"', "", text, flags=re.IGNORECASE)
+
+    # Remove class="..."
+    text = re.sub(r'class="[^"]*"', "", text, flags=re.IGNORECASE)
+
+    # Remove leftover CSS-like attributes (ANYTHING like: color: red;)
+    text = re.sub(r"[a-zA-Z\-]+\s*:\s*[^;]+;", "", text)
+
+    # Strip HTML tags
+    text = strip_tags(text)
+
+    # Remove &nbsp; etc.
+    text = text.replace("&nbsp;", " ").replace("\xa0", " ")
+
+    # Remove multiple spaces
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # Assign back to object (NOT saving in DB)
     property_obj.description = text
-    
+
+    # -------------------------------------
+    # Contact form
+    # -------------------------------------
     if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        phone = request.POST.get("phone")
-        message = request.POST.get("message")
         messages.success(request, "Thank you! We will contact you soon.")
         return redirect("main:properties_detail", slug=slug)
-    
+
+    # -------------------------------------
+    # Group units by bedroom count
+    # -------------------------------------
+    bedroom_units = defaultdict(list)
+    for unit in property_obj.grouped_apartments.all():
+        if unit.rooms and unit.rooms.split()[0].isdigit():
+            bedrooms = int(unit.rooms.split()[0])
+            bedroom_units[bedrooms].append(unit)
+
+    bedroom_units = dict(sorted(bedroom_units.items()))
+
+    # -------------------------------------
+    # Context
+    # -------------------------------------
     context = {
         "property": property_obj,
         "page_title": f"{property_obj.title} - Property Details",
-        "meta_description": property_obj.description[:160] if property_obj.description else "",
+        "meta_description": text[:160] if text else "",
         "images": property_obj.property_images.all(),
-        "units": property_obj.grouped_apartments.all(),
         "facilities": property_obj.facilities.all(),
-        'lat': lat,
-        'lng': lng,
+        "units": property_obj.grouped_apartments.all(),
+        "units_by_bedroom": bedroom_units,
+        "lat": lat,
+        "lng": lng,
+        "clean_description": text,   # FIXED key
     }
-    
+
     return render(request, "main/properties_detail.html", context)
 
 def community_properties(request, slug):
@@ -778,45 +741,80 @@ def community_properties(request, slug):
     }
     
     return render(request, 'main/community_properties.html', context)
-    
+  
+
 def all_communities(request):
-    # Get all cities with properties
-    cities = City.objects.filter(
-        property__isnull=False
-    ).distinct().order_by('name')
+    """Display all communities with filtering, sorting, and pagination"""
     
-    # Get all communities (districts) with their statistics
-    communities = District.objects.annotate(
-        property_count=Count('property'),
-        avg_price=Avg('property__low_price'),
-        min_price=Min('property__low_price')
-    ).filter(
-        property_count__gt=0
-    ).select_related('city').prefetch_related('property_set')
+    # Get all cities excluding unnamed
+    cities = City.objects.all().order_by("name").exclude(name__iexact='Unnamed City')
     
-    # Prepare community data with additional info
-    community_list = []
-    for community in communities:
-        first_property = community.property_set.first()
-        community_list.append({
-            'name': community.name,
-            'slug': community.slug,
-            'city_name': community.city.name if community.city else 'Unknown',
-            'city_slug': community.city.slug if community.city else 'unknown',
-            'property_count': community.property_count,
-            'avg_price': community.avg_price or 0,
-            'min_price': community.min_price or 0,
-            'first_property_cover': first_property.cover.url if first_property and first_property.cover else '',
+    # Get all districts with aggregated data
+    all_districts = (
+        District.objects.all()
+        .select_related('city')
+        .prefetch_related('properties')
+        .annotate(
+            property_count=Count('properties'),
+            avg_price=Coalesce(Avg('properties__low_price'), 0, output_field=FloatField())
+        )
+        .filter(property_count__gt=0)  # Only show districts with properties
+        .order_by('name')
+    )
+    
+    # Filter by city if requested
+    city_filter = request.GET.get('city', '')
+    if city_filter:
+        all_districts = all_districts.filter(city__slug=city_filter)
+    
+    # Sorting
+    sort_by = request.GET.get('sort', 'name-asc')
+    if sort_by == 'name-desc':
+        all_districts = all_districts.order_by('-name')
+    elif sort_by == 'projects-desc':
+        all_districts = all_districts.order_by('-property_count')
+    elif sort_by == 'projects-asc':
+        all_districts = all_districts.order_by('property_count')
+    elif sort_by == 'price-desc':
+        all_districts = all_districts.order_by('-avg_price')
+    elif sort_by == 'price-asc':
+        all_districts = all_districts.order_by('avg_price')
+    else:  # name-asc (default)
+        all_districts = all_districts.order_by('name')
+    
+    # Pagination - 12 communities per page
+    paginator = Paginator(all_districts, 12)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    # Prepare community data for template
+    communities = []
+    for district in page_obj:
+        first_property = district.properties.first()
+        communities.append({
+            'id': district.id,
+            'name': district.name,
+            'city_name': district.city.name if district.city else 'UAE',
+            'city_slug': district.city.slug if district.city else 'uae',
+            'property_count': district.property_count,
+              'avg_price': district.avg_price if district.avg_price > 0 else None, 
+            'first_property_cover': first_property.cover if first_property else '/static/images/no-image.jpg',
         })
     
-    # Sort by property count descending by default
-    community_list.sort(key=lambda x: x['property_count'], reverse=True)
+    # Calculate totals
+    total_communities = all_districts.count()
+    total_properties = Property.objects.filter(district__in=all_districts).count()
     
     context = {
-        'communities': community_list,
+        'communities': communities,
         'cities': cities,
-        'total_communities': len(community_list),
-        'total_properties': Property.objects.count(),
+        'total_communities': total_communities,
+        'total_properties': total_properties,
+        'page_obj': page_obj,
+        'selected_city': city_filter,
+        'selected_sort': sort_by,
+        'page_title': 'All Communities - UAE Real Estate',
+        'meta_description': f'Explore {total_communities} communities across UAE with {total_properties} premium properties',
     }
     
-    return render(request, 'main/all_communities.html', context)
+    return render(request, 'main/all_communities.html', context)  

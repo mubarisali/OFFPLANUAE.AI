@@ -125,9 +125,6 @@
         line-height: 1.8;
     }
 
-
-    
-
     /* Blog Grid */
     .blog-container {
         max-width: 1400px;
@@ -252,7 +249,6 @@
         transform: scale(1.1) rotate(2deg);
     }
 
-
     /* Card Content */
     .card-content {
         padding: 30px;
@@ -267,7 +263,6 @@
         margin-bottom: 15px;
         flex-wrap: wrap;
     }
-
 
     .card-title {
         font-size: 1.4rem;
@@ -324,30 +319,67 @@
         transform: translateX(3px);
     }
 
-    /* Load More Button */
-    .load-more-section {
-        text-align: center;
+    /* Pagination */
+    .pagination-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         margin-top: 60px;
+        gap: 10px;
     }
 
-    .btn-load-more {
-        padding: 16px 50px;
+    .pagination-btn,
+    .pagination-number {
+        min-width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: white;
-        border: 2px solid #c7b04c;
-        border-radius: 50px;
-        color: #c7b04c;
-        font-weight: 700;
-        font-size: 1rem;
+        border: 2px solid #e8e8e8;
+        border-radius: 12px;
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.95rem;
         cursor: pointer;
         transition: all 0.3s ease;
+        text-decoration: none;
+        padding: 0 15px;
+    }
+
+    .pagination-btn:hover:not(.disabled),
+    .pagination-number:hover:not(.active) {
+        border-color: #c7b04c;
+        color: #c7b04c;
+        transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(212, 165, 116, 0.2);
     }
 
-    .btn-load-more:hover {
+    .pagination-number.active {
         background: linear-gradient(135deg, #c7b04c 0%, #c7b04c 100%);
+        border-color: #c7b04c;
         color: white;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(212, 165, 116, 0.3);
+        box-shadow: 0 4px 15px rgba(212, 165, 116, 0.3);
+    }
+
+    .pagination-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        border-color: #e8e8e8;
+    }
+
+    .pagination-btn i {
+        font-size: 0.9rem;
+    }
+
+    .pagination-ellipsis {
+        min-width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-weight: 600;
     }
 
     /* Floating Buttons */
@@ -436,7 +468,17 @@
             height: 220px;
         }
 
-       
+        .pagination-section {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pagination-btn,
+        .pagination-number {
+            min-width: 40px;
+            height: 40px;
+            font-size: 0.9rem;
+        }
 
         /* Mobile: Stack buttons vertically and make circular */
         .floating-buttons {
@@ -496,155 +538,81 @@
         <p class="hero-description">
             Stay updated with the latest trends, market insights, and expert advice on UAE's off-plan property market
         </p>
-
-        
     </section>
 
     <!-- Blog Grid -->
     <div class="blog-container">
         <div class="blog-grid">
-            <!-- Featured Article (Larger Card) -->
-            <article class="blog-card featured">
+            {% for post in blog_posts %}
+            <article class="blog-card {% if forloop.first %}featured{% endif %}">
                 <div class="card-image">
-                    <img src="{% static 'img/hero.avif' %}" alt="Blog post">
-                    
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                    {% else %}
+                        <img src="{% static 'img/hero.avif' %}" alt="{{ post.title }}">
+                    {% endif %}
                 </div>
                 <div class="card-content">
                     <div class="card-meta">
                         <div class="meta-item">
                             <i class="far fa-calendar"></i>
-                            <span>Nov 20, 2025</span>
+                            <span>{{ post.published_at|date:"M d, Y" }}</span>
                         </div>
-                        
                         <div class="meta-item">
                             <i class="far fa-user"></i>
-                            <span>Sarah Ahmed</span>
+                            <span>{{ post.author }}</span>
                         </div>
                     </div>
-                    <h2 class="card-title">Top 10 Off-Plan Developments in Dubai 2025</h2>
-                    <p class="card-excerpt">
-                        Explore the most promising off-plan projects launching this year in Dubai's thriving real estate market. Discover exclusive opportunities.
-                    </p>
-                    <a href="{% url 'main:blog_detail' 1 %}" class="read-more">
+                    <h2 class="card-title">{{ post.title }}</h2>
+                    <p class="card-excerpt">{{ post.excerpt }}</p>
+                    <a href="{% url 'main:blog_detail' post.id %}" class="read-more">
                         Read Full Article
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             </article>
-
-            <!-- Regular Articles -->
-            <article class="blog-card">
-                <div class="card-image">
-                    <img src="{% static 'img/hero.avif' %}" alt="Blog post">
-                    
-                </div>
-                <div class="card-content">
-                    <div class="card-meta">
-                        <div class="meta-item">
-                            <i class="far fa-calendar"></i>
-                            <span>Nov 18, 2025</span>
-                        </div>
-                       
-                    </div>
-                    <h3 class="card-title">How AI is Transforming Property Investment</h3>
-                    <a href="{% url 'main:blog_detail' 1 %}" class="read-more">
-                        Read More
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="card-image">
-                    <img src="{% static 'img/hero.avif' %}" alt="Blog post">
-                    
-                </div>
-                <div class="card-content">
-                    <div class="card-meta">
-                        <div class="meta-item">
-                            <i class="far fa-calendar"></i>
-                            <span>Nov 15, 2025</span>
-                        </div>
-                        
-                    </div>
-                    <h3 class="card-title">Understanding UAE Real Estate Laws</h3>
-                    <a href="{% url 'main:blog_detail' 2 %}" class="read-more">
-                        Read More
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="card-image">
-                    <img src="{% static 'img/hero.avif' %}" alt="Blog post">
-                    
-                </div>
-                <div class="card-content">
-                    <div class="card-meta">
-                        <div class="meta-item">
-                            <i class="far fa-calendar"></i>
-                            <span>Nov 12, 2025</span>
-                        </div>
-                        
-                    </div>
-                    <h3 class="card-title">Investment Tips for First-Time Buyers</h3>
-                    <a href="#" class="read-more">
-                        Read More
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="card-image">
-                    <img src="{% static 'img/hero.avif' %}" alt="Blog post">
-                    
-                </div>
-                <div class="card-content">
-                    <div class="card-meta">
-                        <div class="meta-item">
-                            <i class="far fa-calendar"></i>
-                            <span>Nov 10, 2025</span>
-                        </div>
-                       
-                    </div>
-                    <h3 class="card-title">Abu Dhabi's Emerging Property Hotspots</h3>
-                    <a href="{% url 'main:blog_detail' 3 %}" class="read-more">
-                        Read More
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="card-image">
-                    <img src="{% static 'img/hero.avif' %}" alt="Blog post">
-                    
-                </div>
-                <div class="card-content">
-                    <div class="card-meta">
-                        <div class="meta-item">
-                            <i class="far fa-calendar"></i>
-                            <span>Nov 8, 2025</span>
-                        </div>
-                        
-                    </div>
-                    <h3 class="card-title">Financing Your Off-Plan Property Purchase</h3>
-                    <a href="{% url 'main:blog_detail' 4 %}" class="read-more">
-                        Read More
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </article>
+            {% endfor %}
         </div>
 
-        <!-- Load More Section -->
-        <div class="load-more-section">
-            <button class="btn-load-more">
-                Load More Articles
-            </button>
+        <!-- Pagination Section -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-section">
+            <!-- Previous Button -->
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            {% else %}
+                <span class="pagination-btn disabled">
+                    <i class="fas fa-chevron-left"></i>
+                </span>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="pagination-number active">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="pagination-number">{{ num }}</a>
+                {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                    <a href="?page={{ num }}" class="pagination-number">{{ num }}</a>
+                {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                    <span class="pagination-ellipsis">...</span>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Next Button -->
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            {% else %}
+                <span class="pagination-btn disabled">
+                    <i class="fas fa-chevron-right"></i>
+                </span>
+            {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -659,19 +627,4 @@
         <span>WhatsApp</span>
     </a>
 </div>
-
-<script>
-// Filter functionality
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-    });
-});
-
-// Load more functionality
-document.querySelector('.btn-load-more').addEventListener('click', function() {
-    alert('Loading more articles...');
-});
-</script>
 {% endblock %}

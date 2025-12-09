@@ -198,52 +198,7 @@
     <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:2rem; max-width:1300px; margin:0 auto;">
 
         {% for more in project %}
-        <div style="background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); overflow:hidden; transition:transform 0.3s ease, box-shadow 0.3s ease; position:relative;">
-
-            <div style="position:relative; overflow:hidden;">
-                <img src="{{ more.cover }}" style="width:100%; height:240px; object-fit:cover; transition:transform 0.3s ease;">
-
-                <div style="position:absolute; top:12px; left:12px; background:#1e3a5f; color:white; padding:0.4rem 0.8rem; border-radius:8px; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:0.3rem;">
-                    {{ more.property_status.name }} 
-                </div>
-
-                <div style="position:absolute; top:12px; right:12px; background:#c7b04c; color:white; padding:0.4rem 0.9rem; border-radius:8px; font-size:0.75rem; font-weight:700;">
-                    {{ more.property_type|upper }}
-                </div>
-            </div>
-
-            <div style="padding:1.5rem;">
-
-                <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.8rem; color:#64748b; font-size:0.85rem;">
-                    <i class="fas fa-map-marker-alt" style="color:#c7b04c;"></i>
-                    <span>{{ more.district.name }}, {{ more.city.name }}</span>
-                </div>
-
-                <h3 style="font-size:1.3rem; font-weight:700; color:#1e293b; margin-bottom:0.5rem;">
-                    {{ more.title }}
-                </h3>
-
-                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
-                    <img src="{{ more.developer.logo }}" style="width:60px; height:60px; border-radius:4px; object-fit:cover;" alt="{{ more.developer.name }}">
-                    
-                    <div>
-                        <div style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em;">Developer</div>
-                        <div style="font-size:0.9rem; color:#475569; font-weight:600;">{{ more.developer.name }}</div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom:1.2rem;">
-                    <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.2rem;">Starting Price</div>
-                    <div style="font-size:1.6rem; font-weight:700; color:#c7b04c;">AED {{ more.low_price|intcomma }}</div>
-                </div>
-
-                <a href="{% url 'main:properties_detail' slug=more.slug %}"
-                   style="display:block; text-align:center; background:#1e3a5f; color:white; padding:0.85rem; border-radius:10px; font-size:0.9rem; font-weight:600; text-decoration:none; transition:background 0.3s ease;">
-                    View Details <i class="fas fa-eye" style="margin-left:0.4rem;"></i>
-                </a>
-
-            </div>
-        </div>
+       
 
         {% empty %}
         <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:#64748b;">

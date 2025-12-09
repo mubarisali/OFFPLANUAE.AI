@@ -270,11 +270,7 @@
         font-size: 1rem;
     }
 
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
+   
 
     .form-group {
         margin-bottom: 25px;
@@ -311,7 +307,7 @@
 
     textarea.form-control {
         resize: vertical;
-        min-height: 140px;
+        min-height: 200px;
         font-family: inherit;
     }
 
@@ -535,9 +531,7 @@
             padding: 30px;
         }
 
-        .form-row {
-            grid-template-columns: 1fr;
-        }
+       
 
         .office-info-card {
             padding: 30px;
@@ -647,19 +641,20 @@
 
                 <form id="contactForm">
                     {% csrf_token %}
-                    <div class="form-row">
+                   
                         <div class="form-group">
                             <label>Full Name <span class="required">*</span></label>
                             <input type="text" name="name" class="form-control" placeholder="John Doe" required>
                             <div class="error-message" id="name-error"></div>
                         </div>
 
-                        <div class="form-group">
+                       
+                   
+                     <div class="form-group">
                             <label>Phone Number <span class="required">*</span></label>
                             <input type="tel" name="phone" class="form-control" placeholder="+971 XX XXX XXXX" required>
                             <div class="error-message" id="phone-error"></div>
                         </div>
-                    </div>
 
                     <div class="form-group">
                         <label>Email Address <span class="required">*</span></label>

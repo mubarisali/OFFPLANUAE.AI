@@ -56,6 +56,37 @@
         background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
     }
 
+    /* Back Button in Hero */
+    .hero-back-button {
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .hero-back-button:hover {
+        background: rgba(199, 176, 76, 0.9);
+        border-color: #c7b04c;
+        transform: translateX(-4px);
+    }
+
+    .hero-back-button i {
+        font-size: 0.9rem;
+    }
+
     .blog-hero-content {
         position: relative;
         z-index: 2;
@@ -105,38 +136,14 @@
         color: #c7b04c;
     }
 
-    /* Back Navigation */
-    .back-nav {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem 2rem 0;
-    }
-
-    .back-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #64748b;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        padding: 0.5rem 0;
-    }
-
-    .back-button:hover {
-        color: #c7b04c;
-        gap: 0.75rem;
-    }
-
     /* Article Container */
     .article-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 3rem 2rem;
-        display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 4rem;
+         max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 500px;   /* FIXED */
+    gap: 4rem;
     }
 
     /* Main Content */
@@ -461,104 +468,106 @@
         transform: translateY(-3px);
         box-shadow: 0 8px 25px rgba(199, 176, 76, 0.4);
     }
-/* Popup Modal Styles */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
 
-.popup-overlay.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.popup-modal {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    max-width: 450px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    transform: scale(0.7);
-    transition: transform 0.3s ease;
-}
-
-.popup-overlay.show .popup-modal {
-    transform: scale(1);
-}
-
-.popup-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, #c7b04c 0%, #d4af37 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: scaleIn 0.5s ease;
-}
-
-@keyframes scaleIn {
-    0% {
-        transform: scale(0);
+    /* Popup Modal Styles */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
     }
-    50% {
-        transform: scale(1.1);
+
+    .popup-overlay.show {
+        opacity: 1;
+        visibility: visible;
     }
-    100% {
+
+    .popup-modal {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 450px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        transform: scale(0.7);
+        transition: transform 0.3s ease;
+    }
+
+    .popup-overlay.show .popup-modal {
         transform: scale(1);
     }
-}
 
-.popup-icon i {
-    font-size: 40px;
-    color: white;
-}
+    .popup-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #c7b04c 0%, #d4af37 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: scaleIn 0.5s ease;
+    }
 
-.popup-modal h3 {
-    font-size: 1.8rem;
-    color: #1e3a5f;
-    margin-bottom: 15px;
-    font-weight: 700;
-}
+    @keyframes scaleIn {
+        0% {
+            transform: scale(0);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
 
-.popup-modal p {
-    color: #666;
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 25px;
-}
+    .popup-icon i {
+        font-size: 40px;
+        color: white;
+    }
 
-.popup-close-btn {
-    padding: 12px 40px;
-    background: linear-gradient(135deg, #c7b04c 0%, #d4af37 100%);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+    .popup-modal h3 {
+        font-size: 1.8rem;
+        color: #1e3a5f;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
 
-.popup-close-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(199, 176, 76, 0.4);
-}
+    .popup-modal p {
+        color: #666;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .popup-close-btn {
+        padding: 12px 40px;
+        background: linear-gradient(135deg, #c7b04c 0%, #d4af37 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .popup-close-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(199, 176, 76, 0.4);
+    }
+
     /* Related Posts */
     .related-section {
         max-width: 1200px;
@@ -731,6 +740,13 @@
             margin-top: 70px;
         }
 
+        .hero-back-button {
+            top: 1rem;
+            left: 1rem;
+            font-size: 0.85rem;
+            padding: 0.6rem 1.2rem;
+        }
+
         .blog-hero-title {
             font-size: 2rem;
         }
@@ -805,7 +821,13 @@
 
 <!-- Hero Section -->
 <div class="blog-hero">
-    <img src="{% static blog_post.image %}" alt="{{ blog_post.title }}" class="blog-hero-image">
+    <!-- Back Button Inside Hero -->
+    <a href="{% url 'main:blog' %}" class="hero-back-button">
+        <i class="fas fa-arrow-left"></i>
+        Back to All Articles
+    </a>
+
+    <img src="{{ blog_post.featured_image.url }}" alt="{{ blog_post.title }}" class="blog-hero-image">
     <div class="blog-hero-overlay"></div>
     <div class="blog-hero-content">
         <span class="blog-category">Real Estate Insights</span>
@@ -813,7 +835,8 @@
         <div class="blog-hero-meta">
             <div class="meta-item">
                 <i class="far fa-calendar"></i>
-                <span>{{ blog_post.date }}</span>
+               <span>{{ blog_post.published_at|date:"F d, Y" }}</span>
+
             </div>
             <div class="meta-item">
                 <i class="far fa-user"></i>
@@ -821,14 +844,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- Back Navigation -->
-<div class="back-nav">
-    <a href="{% url 'main:blog' %}" class="back-button">
-        <i class="fas fa-arrow-left"></i>
-        Back to All Articles
-    </a>
 </div>
 
 <!-- Article Container -->
@@ -850,6 +865,7 @@
         <article class="article-content">
             {{ blog_post.content|safe }}
         </article>
+        
     </div>
 
     <!-- Sidebar -->
@@ -909,13 +925,13 @@
         {% for post in related_posts %}
         <a href="{% url 'main:blog_detail' post.id %}" class="related-card">
             <div class="related-card-image-wrapper">
-                <img src="{% static post.image %}" alt="{{ post.title }}" class="related-card-image">
+                <img src="{{ blog_post.featured_image.url }}" alt="{{ post.title }}" class="related-card-image">
                 <span class="related-card-badge">Featured</span>
             </div>
             <div class="related-card-content">
                 <div class="related-card-date">
                     <i class="far fa-calendar"></i>
-                    {{ post.date }}
+                    {{ blog_post.published_at|date:"F d, Y" }}
                 </div>
                 <h3 class="related-card-title">{{ post.title }}</h3>
                 <p class="related-card-excerpt">{{ post.excerpt }}</p>
@@ -946,7 +962,6 @@
         </form>
     </div>
 </div>
-
 
 <!-- Success Popup Modal -->
 <div class="popup-overlay" id="popupOverlay">

@@ -371,22 +371,29 @@
             <!-- Property Info -->
             <div style="display: flex; flex-wrap: wrap; gap: 1.75rem; color: #64748b; margin-bottom: 1.5rem; font-size: 1rem;">
                 <span style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-map-marker-alt" style="color: #c7b04c; font-size: 1.125rem;"></i> 
-                    <span style="font-weight: 500;">{{ property.district.name }},{{ property.city.name }}</span>
+                    <i class="fas fa-map-marker-alt" style="color: #806a0d; font-size: 1.125rem;"></i> 
+                    <span style="font-weight: 500;">{{ property.district.name }}, {{ property.city.name }}</span>
                 </span>
-                <span style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-bed" style="color: #c7b04c; font-size: 1.125rem;"></i> 
-                    <span style="font-weight: 500;">{{ property.bedrooms }} Bedrooms</span>
-                </span>
+               <span style="display: flex; align-items: center; gap: 0.5rem;">
+    <i class="fas fa-bed" style="color: #806a0d; font-size: 1.125rem;"></i>
+    <span style="font-weight: 500;">
+        {% for bedroom_count in units_by_bedroom.keys %}
+            {{ bedroom_count }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        Bedroom{% if units_by_bedroom|length > 1 %}s{% endif %}
+    </span>
+</span>
+
+
                
                 <span style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-expand-arrows-alt" style="color: #c7b04c; font-size: 1.125rem;"></i> 
+                    <i class="fas fa-expand-arrows-alt" style="color: #806a0d; font-size: 1.125rem;"></i> 
                     <span style="font-weight: 500;">{{ property.min_area }} sqft</span>
                 </span>
             </div>
 
             <!-- Price -->
-            <div style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: #c7b04c;">AED {{ property.low_price|floatformat:0|intcomma }}</div>
+            <div style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: #806a0d;">AED {{ property.low_price|floatformat:0|intcomma }}</div>
         </div>
     </div>
 </section>
@@ -404,7 +411,7 @@
                 <div>
                     <h2 style="font-size: 1.875rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem;">About This Property</h2>
                     <p style="color: #64748b; font-size: 1.125rem; line-height: 1.9;">
-                        {{ property.description }}
+                        {{  clean_description  }}
                     </p>
                 </div>
 
@@ -423,7 +430,7 @@
 
                             <div style="color: #475569; font-size: 1rem; display: flex; flex-direction: column; gap: .5rem;">
                                 <p><strong>{{ unit.rooms }}</strong> Rooms</p>
-                                <p><strong>{{ unit.size }}</strong> sqft</p>
+                                <p><strong>{{ unit.min_area }}</strong> sqft</p>
                                 <p style="margin-top: .75rem; font-size: 1.125rem; color: #c7b04c; font-weight: 700;">
                                     AED {{ unit.min_price|floatformat:0|intcomma }}
                                 </p>
@@ -497,7 +504,7 @@
                     <a href="tel:+971501234567" style="display: block; background:#1e3a5f; 
                        color:white; padding: 1rem; border-radius: 12px; text-align:center;
                        margin-bottom: 1rem; font-weight:600; text-decoration:none; transition: all 0.3s ease;">
-                       <i class="fas fa-phone"></i> Call Now
+                       <i class="fas fa-phone-alt"></i> Call Now
                     </a>
 
                     <a href="https://wa.me/971501234567" target="_blank"
